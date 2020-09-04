@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CudaCompile Include="Matrix.cpp" />
+    <CudaCompile Include="Source.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Examples.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Matrix.hpp" />
+    <ClInclude Include="Neural.hpp" />
+    <ClInclude Include="tests.hpp" />
+    <ClInclude Include="mnist\mnist_reader.hpp">
+      <Filter>mnist</Filter>
+    </ClInclude>
+    <ClInclude Include="mnist\mnist_reader_common.hpp">
+      <Filter>mnist</Filter>
+    </ClInclude>
+    <ClInclude Include="mnist\mnist_reader_less.hpp">
+      <Filter>mnist</Filter>
+    </ClInclude>
+    <ClInclude Include="mnist\mnist_utils.hpp">
+      <Filter>mnist</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="kernel.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="mnist">
+      <UniqueIdentifier>{31e64a47-0846-4228-bfd1-5439d4bd9044}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,247 @@
+[
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/g++-9   -I../PNG -I../PNG/libpng-code -I../include  -g   -o CMakeFiles/main.dir/Source.cpp.o -c /home/william/Documents/MatrixStrategy/MatrixStrategy/Source.cpp",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/Source.cpp"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/nvcc   -I../PNG -I../PNG/libpng-code -I../include  -g   -x cu -c /home/william/Documents/MatrixStrategy/MatrixStrategy/Matrix.cu -o CMakeFiles/main.dir/Matrix.cu.o && /bin/nvcc   -I../PNG -I../PNG/libpng-code -I../include  -g   -x cu -M /home/william/Documents/MatrixStrategy/MatrixStrategy/Matrix.cu -MT CMakeFiles/main.dir/Matrix.cu.o -o $DEP_FILE",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/Matrix.cu"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/nvcc   -I../PNG -I../PNG/libpng-code -I../include  -g   -x cu -c /home/william/Documents/MatrixStrategy/MatrixStrategy/GPUMatrix.cu -o CMakeFiles/main.dir/GPUMatrix.cu.o && /bin/nvcc   -I../PNG -I../PNG/libpng-code -I../include  -g   -x cu -M /home/william/Documents/MatrixStrategy/MatrixStrategy/GPUMatrix.cu -MT CMakeFiles/main.dir/GPUMatrix.cu.o -o $DEP_FILE",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/GPUMatrix.cu"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/g++-9   -I../PNG -I../PNG/libpng-code -I../include  -g   -o CMakeFiles/main.dir/src/IO.cpp.o -c /home/william/Documents/MatrixStrategy/MatrixStrategy/src/IO.cpp",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/src/IO.cpp"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png-fix-itxt.dir/contrib/tools/png-fix-itxt.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/tools/png-fix-itxt.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/tools/png-fix-itxt.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/png.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/png.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/png.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngerror.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngerror.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngerror.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngget.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngget.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngget.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngmem.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngmem.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngmem.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngpread.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngpread.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngpread.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngread.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngread.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngread.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngrio.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrio.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrio.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngrtran.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrtran.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrtran.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngrutil.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrutil.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrutil.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngset.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngset.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngset.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngtrans.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngtrans.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngtrans.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngwio.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwio.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwio.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngwrite.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwrite.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwrite.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngwtran.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwtran.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwtran.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9 -Dpng_EXPORTS -IPNG/libpng-code -I../PNG/libpng-code  -g -fPIC   -o PNG/libpng-code/CMakeFiles/png.dir/pngwutil.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwutil.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwutil.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/png.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/png.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/png.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngerror.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngerror.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngerror.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngget.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngget.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngget.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngmem.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngmem.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngmem.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngpread.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngpread.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngpread.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngread.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngread.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngread.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngrio.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrio.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrio.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngrtran.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrtran.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrtran.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngrutil.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrutil.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngrutil.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngset.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngset.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngset.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngtrans.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngtrans.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngtrans.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngwio.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwio.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwio.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngwrite.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwrite.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwrite.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngwtran.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwtran.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwtran.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/png_static.dir/pngwutil.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwutil.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngwutil.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/pngtest.dir/pngtest.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngtest.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngtest.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/pngvalid.dir/contrib/libtests/pngvalid.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/libtests/pngvalid.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/libtests/pngvalid.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/pngunknown.dir/contrib/libtests/pngunknown.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/libtests/pngunknown.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/libtests/pngunknown.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/pngstest.dir/contrib/libtests/pngstest.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/libtests/pngstest.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/libtests/pngstest.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/pngfix.dir/contrib/tools/pngfix.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/tools/pngfix.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/tools/pngfix.c"
+},
+
+{
+  "directory": "/home/william/Documents/MatrixStrategy/MatrixStrategy/build",
+  "command": "/bin/gcc-9  -IPNG/libpng-code -I../PNG/libpng-code  -g   -o PNG/libpng-code/CMakeFiles/pngimage.dir/contrib/libtests/pngimage.c.o   -c /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/libtests/pngimage.c",
+  "file": "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/libtests/pngimage.c"
+}
+]
