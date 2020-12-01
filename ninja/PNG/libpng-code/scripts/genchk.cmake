@@ -9,7 +9,7 @@
 # and license in png.h
 
 # Variables substituted from CMakeLists.txt
-set(SRCDIR "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code")
+set(SRCDIR "/home/w/Documents/MatrixStrategy/PNG/libpng-code")
 
 set(AWK "/usr/bin/awk")
 

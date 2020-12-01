@@ -8,7 +8,7 @@
 # and license in png.h
 
 set(TEST_OPTIONS "--tmpfile;1.8-alpha-;--log")
-set(TEST_FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/testpngs/gray-alpha-16-1.8.png;/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/testpngs/gray-alpha-8-1.8.png;/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/testpngs/rgb-alpha-16-1.8.png;/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/contrib/testpngs/rgb-alpha-8-1.8.png")
+set(TEST_FILES "/home/w/Documents/MatrixStrategy/PNG/libpng-code/contrib/testpngs/gray-alpha-16-1.8.png;/home/w/Documents/MatrixStrategy/PNG/libpng-code/contrib/testpngs/gray-alpha-8-1.8.png;/home/w/Documents/MatrixStrategy/PNG/libpng-code/contrib/testpngs/rgb-alpha-16-1.8.png;/home/w/Documents/MatrixStrategy/PNG/libpng-code/contrib/testpngs/rgb-alpha-8-1.8.png")
 
 foreach(file ${TEST_FILES})
   file(TO_NATIVE_PATH "${file}" native_file)

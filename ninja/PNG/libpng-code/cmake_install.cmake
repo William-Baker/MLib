@@ -1,4 +1,4 @@
-# Install script for directory: /home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code
+# Install script for directory: /home/w/Documents/MatrixStrategy/PNG/libpng-code
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,8 +50,8 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
     endif()
   endforeach()
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES
-    "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng17d.so.17.0.0"
-    "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng17d.so.17"
+    "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng17d.so.17.0.0"
+    "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng17d.so.17"
     )
   foreach(file
       "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libpng17d.so.17.0.0"
@@ -73,7 +73,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libpng17d.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng17d.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng17d.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libpng17d.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libpng17d.so")
     if(CMAKE_INSTALL_DO_STRIP)
@@ -83,39 +83,39 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng17d.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng17d.a")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE FILE FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE FILE FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng.so")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE FILE FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE FILE FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng.a")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE FILE FILES
-    "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/png.h"
-    "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngconf.h"
-    "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/pnglibconf.h"
+    "/home/w/Documents/MatrixStrategy/PNG/libpng-code/png.h"
+    "/home/w/Documents/MatrixStrategy/PNG/libpng-code/pngconf.h"
+    "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/pnglibconf.h"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/libpng17" TYPE FILE FILES
-    "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/png.h"
-    "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngconf.h"
-    "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/pnglibconf.h"
+    "/home/w/Documents/MatrixStrategy/PNG/libpng-code/png.h"
+    "/home/w/Documents/MatrixStrategy/PNG/libpng-code/pngconf.h"
+    "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/pnglibconf.h"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE PROGRAM FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng-config")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE PROGRAM FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng-config")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE PROGRAM FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng17-config")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE PROGRAM FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng17-config")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -125,12 +125,12 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/pngfix"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/pngfix")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/pngfix")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/pngfix" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/pngfix")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/pngfix"
-         OLD_RPATH "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code:"
+         OLD_RPATH "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/pngfix")
@@ -145,7 +145,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/png-fix-itxt"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/png-fix-itxt")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/png-fix-itxt")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/png-fix-itxt" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/png-fix-itxt")
     if(CMAKE_INSTALL_DO_STRIP)
@@ -156,36 +156,36 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/man/man3" TYPE FILE FILES
-    "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/libpng.3"
-    "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/libpngpf.3"
+    "/home/w/Documents/MatrixStrategy/PNG/libpng-code/libpng.3"
+    "/home/w/Documents/MatrixStrategy/PNG/libpng-code/libpngpf.3"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/man/man5" TYPE FILE FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/png.5")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/man/man5" TYPE FILE FILES "/home/w/Documents/MatrixStrategy/PNG/libpng-code/png.5")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng.pc")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE PROGRAM FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng-config")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE PROGRAM FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng-config")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng17.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng17.pc")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE PROGRAM FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/libpng17-config")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE PROGRAM FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/libpng17-config")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libpng/libpng17.cmake")
     file(DIFFERENT EXPORT_FILE_CHANGED FILES
          "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libpng/libpng17.cmake"
-         "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/CMakeFiles/Export/lib/libpng/libpng17.cmake")
+         "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/CMakeFiles/Export/lib/libpng/libpng17.cmake")
     if(EXPORT_FILE_CHANGED)
       file(GLOB OLD_CONFIG_FILES "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libpng/libpng17-*.cmake")
       if(OLD_CONFIG_FILES)
@@ -194,9 +194,9 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
       endif()
     endif()
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/libpng" TYPE FILE FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/CMakeFiles/Export/lib/libpng/libpng17.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/libpng" TYPE FILE FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/CMakeFiles/Export/lib/libpng/libpng17.cmake")
   if("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/libpng" TYPE FILE FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code/CMakeFiles/Export/lib/libpng/libpng17-debug.cmake")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/libpng" TYPE FILE FILES "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code/CMakeFiles/Export/lib/libpng/libpng17-debug.cmake")
   endif()
 endif()
 

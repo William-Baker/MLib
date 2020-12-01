@@ -1,6 +1,37 @@
 #include "Matrix.hpp"
 #include "kernel.cu"
-//=========================================================== GPU Matrix ==========================================================================
+
+cublasHandle_t* GPUMatrix::handle;
+double GPUMatrix::SMThreads;
+cudaStream_t GPUMatrix::stream; 
+
+void GPUMatrix::GPUSupported(bool* supported) {
+	GPUMatrix::handle = new cublasHandle_t();
+	cublasStatus_t status = cublasCreate(GPUMatrix::handle);
+
+	if (*GPUMatrix::handle == NULL && status != CUBLAS_STATUS_SUCCESS) {
+		*supported = false;
+	}
+	else {
+		*supported = true;
+		int nDevices;
+		cudaGetDeviceCount(&nDevices);
+		for (int i = 0; i < nDevices; i++) {
+			cudaDeviceProp prop;
+			cudaGetDeviceProperties(&prop, i);
+			GPUMatrix::SMThreads = prop.maxThreadsPerBlock;
+		}
+		//cudaStreamCreateWithPriority(&stream, cudaStreamNonBlocking, 0);
+		int greatestPriority;
+		cudaDeviceGetStreamPriorityRange(NULL, &greatestPriority);
+		cudaStreamCreateWithPriority(&GPUMatrix::stream, cudaStreamDefault, greatestPriority);
+		//cudaStreamCreateWithPriority(&GPUMatrix::stream, cudaStreamNonBlocking, 0);
+		//cudaStreamCaptureMode cap = cudaStreamCaptureModeGlobal;
+		cudaStreamCaptureMode cap = cudaStreamCaptureModeThreadLocal;
+
+		cudaThreadExchangeStreamCaptureMode(&cap);
+	}
+}
 
 GPUMatrix* GPUMatrix::multiply(AbstractMatrix* B) { //multiplies two matrices on the GPU 
 	GPUMatrix* C = new GPUMatrix(y, B->x);
@@ -201,22 +232,54 @@ void GPUMatrix::scale(double B, AbstractMatrix* C) {
 	//cudaStreamSynchronize(stream);
 }
 
+double GPUMatrix::sum() const {
+	dim3 Thread(GPUMatrix::SMThreads, 1, 1); //allocate proportions of threads
+	dim3 Block(std::ceil((double)size / GPUMatrix::SMThreads), 1, 1);//if we need any more use threads for them, ceil ensures we never miss an index
+	double* totals;
+	cudaMalloc(&totals, x*sizeof(double));
+	GPUSum << < Block, Thread , 0, stream>> > (arr, x, y, totals);
+	double* results;
+	results = (double*)malloc(x*sizeof(double));
+	cudaMemcpy(results, totals, x*sizeof(double), cudaMemcpyDeviceToHost);
+	double total = 0;
+	for(int i = 0; i < x; i++){
+		total += results[i];
+	}
+	return total;
+}
 
-void GPUMatrix::convolute( AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* net, AbstractMatrix* out, int inX, int inY, int inZ, int outX, int outY, int outZ, int convX, int convY) {
+
+void GPUMatrix::convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* out, int outY, int outX, int outZ, int convY, int convX, int convZ) {
 	
 
-	double proportion = std::cbrt(GPUMatrix::SMThreads / (outX * outY * outZ)); //calculate a proportion to devide up the threads,
+	/* double proportion = std::cbrt(GPUMatrix::SMThreads / (outX * outY * outZ)); //calculate a proportion to devide up the threads,
 								//since y*B->x may be less than threads guard used in kernel
 	dim3 Thread(std::max(proportion * outX, 1.0), std::max(proportion * outY, 1.0), std::max(proportion * outZ, 1.0)); //allocate proportions of threads
 	dim3 Block(ceil((double)outX / Thread.x), ceil((double)outY / Thread.y), ceil((double)outZ / Thread.z));//if we need any more use threads for them, ceil ensures we never miss an index
 
 	ConvKernel<< < Block, Thread, 0, stream >> > (arr, layer->arr, bias->arr, net->arr, out->arr, inY,  inZ,  outX, outY, outZ, convY, convX);//TODO REFACTOR FOR NET
-	//cudaStreamSynchronize(stream);
+	 *///cudaStreamSynchronize(stream);
 
 }
 
+void GPUMatrix::convBackprop(AbstractMatrix* in, AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* out_error, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR){	//prevError->fill(0);
+	cudaMemset2DAsync(prevError->arr, sizeof(double), 0, prevError->x, prevError->y);
+	//cudaDeviceSynchronize();
+	//Matrix gradient(net->y, net->x);
 
-void GPUMatrix::convBackprop(AbstractMatrix* in, AbstractMatrix* layer, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* net, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
+	/* dim3 Thread(GPUMatrix::SMThreads, 1, 1); //allocate proportions of threads
+	dim3 Block(std::ceil((double) net->size / GPUMatrix::SMThreads), 1, 1);//if we need any more use threads for them, ceil ensures we never miss an index
+	int s = net->size;
+	convBackpropErrorsKernel << < Block, Thread, 0, stream >> > (gradient->arr, net->arr, arr, s);
+	double proportion = std::cbrt(GPUMatrix::SMThreads / (outX * outY * outZ)); //calculate a proportion to devide up the threads,
+								//since y*B->x may be less than threads guard used in kernel
+	dim3 Thread2(std::max(proportion * outX, 1.0), std::max(proportion * outY, 1.0), std::max(proportion * outZ, 1.0)); //allocate proportions of threads
+	dim3 Block2(ceil((double)outX / Thread2.x), ceil((double)outY / Thread2.y), ceil((double)outZ / Thread2.z));//if we need any more use threads for them, ceil ensures we never miss an index
+
+	convBackpropKernel << < Block2, Thread2, 0, stream >> > (arr, in->arr, layer->arr, prevError->arr, bias->arr, net->arr, outY, outX, outZ, convY, convX, convZ, LR, gradient->arr, 1 / (convX * convY), in->y);
+ */
+}
+/* void GPUMatrix::convBackprop(AbstractMatrix* in, AbstractMatrix* layer, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* net, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
 	//prevError->fill(0);
 	cudaMemset2DAsync(prevError->arr, sizeof(double), 0, prevError->x, prevError->y);
 	//cudaDeviceSynchronize();
@@ -233,7 +296,7 @@ void GPUMatrix::convBackprop(AbstractMatrix* in, AbstractMatrix* layer, Abstract
 
 	convBackpropKernel << < Block2, Thread2, 0, stream >> > (arr, in->arr, layer->arr, prevError->arr, bias->arr, net->arr, outY, outX, outZ, convY, convX, convZ, LR, gradient->arr, 1 / (convX * convY), in->y);
 
-}
+} */
 
 
 
@@ -277,13 +340,9 @@ void GPUMatrix::transpose(GPUMatrix* B) {
 	//cudaStreamSynchronize(stream);
 }
 
-void GPUMatrix::print() { //prints the matrix to the console
+void GPUMatrix::print() const { //prints the matrix to the console
 	CPUMatrix m(y, x);
 	copyToCPU(m.arr);
 	m.print();
 }
-
-//======================================================================================================================================
-
-
 

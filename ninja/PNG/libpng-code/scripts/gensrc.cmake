@@ -9,8 +9,8 @@
 # and license in png.h
 
 # Variables substituted from CMakeLists.txt
-set(SRCDIR "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code")
-set(BINDIR "/home/william/Documents/MatrixStrategy/MatrixStrategy/ninja/PNG/libpng-code")
+set(SRCDIR "/home/w/Documents/MatrixStrategy/PNG/libpng-code")
+set(BINDIR "/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code")
 
 set(AWK "/usr/bin/awk")
 set(DFA_XTRA "")

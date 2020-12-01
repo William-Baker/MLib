@@ -38,3 +38,11 @@ void IO::IO_log(LOG_TYPE log_type, std::string message, std::string function_nam
 }
 
 
+std::chrono::time_point<std::chrono::high_resolution_clock> Timer::startTime;
+void Timer::start() {
+	startTime = std::chrono::high_resolution_clock::now();
+}
+size_t Timer::time() {
+	auto elapsed = std::chrono::high_resolution_clock::now() - startTime;
+	return std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+}

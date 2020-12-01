@@ -1,9 +1,153 @@
+#pragma once
 #include "Neural.hpp"
 #include <vector>
 #include <future>
 #include <AsyncJob.hpp>
 #include <png.hpp>
 #include "mnist//mnist_reader.hpp"
+
+#include <algorithm>    // std::shuffle
+#include <random>       // std::default_random_engine
+#include <chrono>       // std::chrono::system_clock
+
+
+//TODO look at weight decay
+
+class DataSetProvider{
+	public:
+	virtual void initialise(std::string file_path) = 0;
+	virtual MLCase get_next_case() = 0;
+	virtual MLCase get_current_case() = 0;
+	virtual void randomise_positions() = 0;
+	virtual size_t get_size() = 0;
+};
+
+class Trainer{
+	public:
+	DataSetProvider* data = 0;
+	NeuralNetwork* NN = 0;
+	size_t batch_size = 0; //The number of of cases to train on before checking the performance across those cases
+
+	/**
+	 * @param batch_size set to 0 to calculate batch size automatically
+	 */
+	Trainer(DataSetProvider* data, NeuralNetwork* NN, size_t batch_size = 0){
+		this->batch_size = batch_size ? batch_size : data->get_size();
+		this->data = data;
+		this->NN = NN;
+	}
+	/**
+	 * @param performance_target the desired accuracy of the network across a batch (0-1) 0 is better
+	 * @return performance of the network (0-1) 0 is better
+	 */
+	double beginTraining(double performance_target, double LR = 0.05){
+		double current_performance = 1;
+
+		//>= so 0 is a valid target
+		while(current_performance >= performance_target){
+			double performance_tally = 0;
+			for(size_t batch_iteration = 0; batch_iteration < batch_size; batch_iteration ++){
+				MLCase current_case = data->get_next_case();
+				NN->compute(current_case.inputs);
+				Matrix tmp(current_case.outputs, false);
+				performance_tally += NN->backprop(tmp, LR);
+			}
+			current_performance = performance_tally / batch_size;
+			//std::cout << "Current performance: " << current_performance << std::endl;
+			data->randomise_positions();
+			//NN->print();
+		}
+		return current_performance;
+	}
+
+};
+
+class XOR : public DataSetProvider{
+	public:
+	std::vector<MLCase> cases;
+	size_t ptr = 0;
+	
+
+	void initialise(std::string file_path) override{
+		Matrix* oo_i = new Matrix(2,1);
+		oo_i->setIndex(0,0.1);
+		oo_i->setIndex(1,0.1);
+		Matrix* oo_o = new Matrix(1,1);
+		oo_o->setIndex(0,0);
+		cases.push_back(MLCase(oo_i->getStrategy(), oo_o->getStrategy()));
+
+		Matrix* on_i = new Matrix(2,1);
+		on_i->setIndex(0,0.1);
+		on_i->setIndex(1,1);
+		Matrix* on_o = new Matrix(1,1);
+		on_o->setIndex(0,1);
+		cases.push_back(MLCase(on_i->getStrategy(), on_o->getStrategy()));
+
+		Matrix* no_i = new Matrix(2,1);
+		no_i->setIndex(0,1);
+		no_i->setIndex(1,0.1);
+		Matrix* no_o = new Matrix(1,1);
+		no_o->setIndex(0,1);
+		cases.push_back(MLCase(no_i->getStrategy(), no_o->getStrategy()));
+
+		Matrix* nn_i = new Matrix(2,1);
+		nn_i->setIndex(0,1);
+		nn_i->setIndex(1,1);
+		Matrix* nn_o = new Matrix(1,1);
+		nn_o->setIndex(0,0);
+		cases.push_back(MLCase(nn_i->getStrategy(), nn_o->getStrategy()));
+
+		//Set 2
+
+		oo_i = new Matrix(2,1);
+		oo_i->setIndex(0,0.4);
+		oo_i->setIndex(1,0.6);
+		oo_o = new Matrix(1,1);
+		oo_o->setIndex(0,0);
+		cases.push_back(MLCase(oo_i->getStrategy(), oo_o->getStrategy()));
+
+		on_i = new Matrix(2,1);
+		on_i->setIndex(0,0.4);
+		on_i->setIndex(1,0.6);
+		on_o = new Matrix(1,1);
+		on_o->setIndex(0,1);
+		cases.push_back(MLCase(on_i->getStrategy(), on_o->getStrategy()));
+
+		no_i = new Matrix(2,1);
+		no_i->setIndex(0,0.6);
+		no_i->setIndex(1,0.4);
+		no_o = new Matrix(1,1);
+		no_o->setIndex(0,1);
+		cases.push_back(MLCase(no_i->getStrategy(), no_o->getStrategy()));
+
+		nn_i = new Matrix(2,1);
+		nn_i->setIndex(0,0.6);
+		nn_i->setIndex(1,0.6);
+		nn_o = new Matrix(1,1);
+		nn_o->setIndex(0,0);
+		cases.push_back(MLCase(nn_i->getStrategy(), nn_o->getStrategy()));
+	}
+
+	MLCase get_next_case() override {
+		ptr = (ptr+1)%4;
+		return cases[ptr];
+	}
+
+	MLCase get_current_case() override {
+		return cases[ptr];
+	}
+
+	void randomise_positions() override {
+		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+
+  		shuffle (cases.begin(), cases.end(), std::default_random_engine(seed));
+	}
+
+	size_t get_size() override{
+		return 4;
+	}
+
+};
 
 class TrainCases {
 	std::vector<MLCase> casesLive;
@@ -48,7 +192,7 @@ class TrainCases {
 			test_label->setIndex(0, dataset.test_labels[index]);
 			Matrix* data = new Matrix((int)sqrt(test_image.size()), (int)sqrt(test_image.size()));
 			data->copyToThis(test_image.data());
-			MLCase* case_load = new MLCase((MLStruct<double>*)data, (MLStruct<double>*)test_label);
+			MLCase* case_load = new MLCase(data->getStrategy(), test_label->getStrategy());
 			test_image.~vector();
 			switchToCPUOnUsage(maxMemUsage);
 		}
@@ -85,7 +229,7 @@ class TrainCases {
 	};
 private:
 	void switchToCPUOnUsage(double maxMemUsage) {
-		if (Matrix::hasGPU()) {
+		if (Matrix::checkGPU()) {
 			size_t free, used;
 			cudaMemGetInfo(&free, &used);
 			if (used / used + free > maxMemUsage) {

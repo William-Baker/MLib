@@ -9,13 +9,13 @@
 # and license in png.h
 
 # Variables substituted from CMakeLists.txt
-set(SRCDIR "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code")
-set(BINDIR "/home/william/Documents/MatrixStrategy/MatrixStrategy/build/PNG/libpng-code")
+set(SRCDIR "/home/w/Documents/MatrixStrategy/PNG/libpng-code")
+set(BINDIR "/home/w/Documents/MatrixStrategy/build/PNG/libpng-code")
 
 set(AWK "/usr/bin/awk")
-set(CMAKE_C_COMPILER "/bin/gcc-9")
+set(CMAKE_C_COMPILER "/bin/gcc-10")
 set(CMAKE_C_FLAGS "")
-set(INCDIR "/home/william/Documents/MatrixStrategy/MatrixStrategy/build/PNG/libpng-code")
+set(INCDIR "/home/w/Documents/MatrixStrategy/build/PNG/libpng-code")
 set(PNG_PREFIX "")
 set(PNGLIB_MAJOR "1")
 set(PNGLIB_MINOR "7")

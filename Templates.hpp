@@ -1,9 +1,24 @@
 
+#pragma once
+#include <cstddef>
 template < typename E> class MLStruct {
 public:
-	E* arr = 0;
+	enum StructType{
+		STRUCT_GPUMatrix,
+		STRUCT_CPUMatrix,
+		STRUCT_CPUTensor,
+		STRUCT_GPUTensor,
+		STRUCT_UNKNOWN
+	};
+
+	StructType struct_type = STRUCT_UNKNOWN;
+	
+	virtual void print() const = 0;
+	int get_size() const {return size;}
+	virtual E* get_implementation_array() = 0;
+	virtual const E* get_implementation_array() const = 0;
+protected:
 	size_t size = 0;
-	virtual void print() = 0;
 };
 
 // Template class for Matrices
@@ -11,31 +26,52 @@ public:
 // 
 template < typename E> class AbstractMatrix : public MLStruct<E> {
 public:
-	
+	E* arr = 0;
 	size_t x = 0;
 	size_t y = 0;
 
-	E* getArray() { return this->arr; }
+		
 
-	virtual E index(size_t Y, size_t X) = 0;
-	virtual E index(size_t i) = 0;
+	virtual void deconstruct() = 0;
+	virtual void delete_array_ref() = 0;
 
-	inline size_t getIndex(size_t Y, size_t X) {
-		return X*y + Y;
+
+	E* get_implementation_array() override { return arr; }
+	const E* get_implementation_array() const override { return arr; }
+	/**
+	 * @return a copy of the matrix stored in CPU memory
+	 */
+	virtual E* copy_array_host() const = 0;
+	/**
+	 * @return the matrix stored in CPU memory - warning this may be a direct refernce to the Matrices array
+	 */
+	virtual const E* get_array_from_host() const = 0;
+
+	virtual E index(size_t Y, size_t X) const = 0; //const indexing so consistent for GPU
+	virtual E index(size_t i) const = 0;
+
+	static inline size_t indexing(size_t Y, size_t X, size_t y_dim) {
+		return X*y_dim + Y;
 	}
-	inline size_t getIndex_t(size_t Y, size_t X) {
-		return Y * x + y;
+	static inline size_t indexing_t(size_t Y, size_t X, size_t x_dim){
+		return Y*x_dim + X;
 	}
+
+	inline size_t getIndex(size_t Y, size_t X) const {
+		return indexing(Y, X, y);
+	}
+	inline size_t getIndex_t(size_t Y, size_t X) const {
+		return indexing_t(Y, X, x);
+	}
+
 	virtual void setIndex(size_t Y, size_t X, E value) = 0;
 	virtual void setIndex(size_t i, E value) = 0;
 
-	virtual void randomFill(E min, E mAx) = 0;
-	virtual void randomFill(E lowerMin, E lowerMAx, E upperMin, E upperMAx) = 0;
+	virtual void randomFill(E min, E max) = 0;
+	virtual void randomFill(E lowerMin, E lowerMax, E upperMin, E upperMax) = 0;
 
 	virtual void fill(E value) = 0;
 
-	virtual AbstractMatrix* copy() = 0;
-	virtual void copy(AbstractMatrix* m) = 0;
 	virtual void transpose() = 0;
 	virtual AbstractMatrix* transposeNew() = 0;
 
@@ -83,27 +119,19 @@ public:
 	virtual AbstractMatrix* scale(double B) = 0;
 	virtual void scale(double B, AbstractMatrix* C) = 0;
 
+	virtual double sum() const = 0;
+
 
 	//Add at index
 	virtual void addIndex(size_t Y, size_t X, double value) = 0;
 	virtual void addIndex(size_t i, double value) = 0;
 
-	virtual void print() = 0;
-	virtual void print(int resolution) = 0;
+	virtual void print() const = 0;
+	virtual void print(int resolution) const = 0;
 
-	/**
-	 * @return a copy of the matrix stored in CPU memory
-	 */
-	virtual E* get_CPU_pointer() = 0;
-	/**
-	 * @return the matrix stored in CPU memory - warning this may be a direct refernce to the Matrices array
-	 */
-	virtual E* get_CPU_pointer_read_only() = 0;
 
-	virtual void deconstruct() = 0;
-	virtual void delete_array_ref() = 0;
-	//virtual ~AbstractMatrix() {};
 
+	enum MEM { CPU, GPU };
 
 
 
@@ -114,8 +142,8 @@ public:
 
 
 	//Addons
-	virtual void convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* net, AbstractMatrix* out, int inX, int inY, int inZ, int outX, int outY, int outZ, int convX, int convY) = 0;
+	virtual void convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* out, int outY, int outX, int outZ, int convY, int convX, int convZ) = 0;
 
-	virtual void convBackprop(AbstractMatrix* in, AbstractMatrix* layer, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* net, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) = 0;
+	virtual void convBackprop(AbstractMatrix* in, AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* out_error, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) = 0;
 
 };

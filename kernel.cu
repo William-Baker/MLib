@@ -3,7 +3,6 @@
 
 #include <cuda_runtime.h>
 #include "device_launch_parameters.h"
-//#include <math.h>
 #include <cuda_runtime.h>
 
 //TODO remember all the XD's switched to YD's
@@ -160,6 +159,16 @@ __global__ void GPUScale(double* A, double B, double* C, long size) {
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	if (i < size) {
 		C[i] = A[i] * B;
+	}
+}
+
+__global__ void GPUSum(double* arr, long width, long height, double* totals){
+	int x = blockDim.x * blockIdx.x + threadIdx.x;
+	if (x < width) {
+		totals[x] = 0;
+		for(int y = 0; y < height; y++){
+			totals[x] += arr[Index(y, x, height)];
+		}
 	}
 }
 

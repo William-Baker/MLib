@@ -8,7 +8,7 @@
 # and license in png.h
 
 set(TEST_OPTIONS "--strict;bKGD=save;cHRM=save;gAMA=save;all=discard;iCCP=save;sBIT=save;sRGB=save")
-set(TEST_FILES "/home/william/Documents/MatrixStrategy/MatrixStrategy/PNG/libpng-code/pngtest.png")
+set(TEST_FILES "/home/w/Documents/MatrixStrategy/PNG/libpng-code/pngtest.png")
 
 foreach(file ${TEST_FILES})
   file(TO_NATIVE_PATH "${file}" native_file)

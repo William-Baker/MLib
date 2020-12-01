@@ -1,55 +1,42 @@
 #pragma once
-//#pragma comment(lib,"cublas.lib") 
+
 #include <cublas_v2.h>
 #include <cuda_runtime.h>
 #include "device_launch_parameters.h"
-#include "IO.hpp"
+
 #include <random>
-#include <iostream>
-#include <complex>
-#include <chrono>
-#include <math.h>
-#include <vector>
+
 #include "Templates.hpp"
+#include "include/IO.hpp"
 
 class GPUMatrix : public AbstractMatrix<double> {
 public:
 	static cublasHandle_t* handle;
 	static double SMThreads;// double as floating point operastions are later performed
 	static cudaStream_t stream; 
-	void alloc(double* ptr, size_t size) {
-		auto err = cudaMalloc(&arr, size * sizeof(double));
-		if (err != cudaSuccess) {
-			while (err != cudaSuccess) {
-				std::cout << cudaGetErrorString(err) << std::endl;
-				cudaMalloc(&arr, size * sizeof(double));
-			}
-		}
-	}
-	void cpy(double* dst, double* src, size_t size, cudaMemcpyKind kind) {
-		auto err = cudaMemcpy(dst, src, size, kind);
-		while (err != cudaSuccess) {
-			if((dst == 0) || (src == 0)) ilog(FATAL_ERROR, "dstination or source pointer NULL");
-			std::cout << "error while copying on GPU: " << err;
-			err = cudaMemcpy(dst, src, size, kind);
-		}
-	}
+
+
+    static void GPUSupported(bool* supported);
+
 	GPUMatrix() { //Null constructor
 		arr = nullptr;
+		struct_type = StructType::STRUCT_GPUMatrix;
 	}
 	GPUMatrix(size_t Y, size_t X) {//standard constructor taking the number of columns in the matrix and the number of rows
 			//then allocating the appropriate amount of memory on the device
+		struct_type = StructType::STRUCT_GPUMatrix;
 		size = X * Y;
 		y = Y;
 		x = X;
-		alloc(arr, size);
+		allocate_GPU_memory(arr, size);
 	}
 	//Copy constructor
-	GPUMatrix(GPUMatrix* m) {
-		m->copy(this);
-	}
+	// GPUMatrix(GPUMatrix* m) {
+	// 	struct_type = StructType::STRUCT_GPUMatrix;
+	// 	m->copy(this);
+	// }
 
-	enum MEM { CPU, GPU };
+	
 
 	/**
 	 * Construct CPU matrix, using existing array
@@ -77,12 +64,12 @@ public:
 
 
 	
-	double index(size_t Y, size_t X) override {//Gets a value from the matrix indexed in both dimensions
+	double index(size_t Y, size_t X) const override {//Gets a value from the matrix indexed in both dimensions
 		double ret = 0;
 		cpy(&ret, &arr[getIndex(Y,X)], sizeof(double), cudaMemcpyDeviceToHost); //copy's the value from GPU memory to host memory
 		return ret;
 	}
-	double index(size_t X) override {//Gets a value from the matrix indexed By a single dimension 0 to Matrix size
+	double index(size_t X) const override {//Gets a value from the matrix indexed By a single dimension 0 to Matrix size
 		double ret = 0;
 		cpy(&ret, &arr[X], sizeof(double), cudaMemcpyDeviceToHost); //copy's the value from GPU memory to host memory
 		return ret;
@@ -144,6 +131,8 @@ public:
 	GPUMatrix* scale(double B) override;
 	void scale(double B, AbstractMatrix* C) override;
 
+	double sum() const override;
+
 	void randomFill(double min, double mAx) override;
 
 	void randomFill(double negmin, double negmAx, double min, double mAx) override;
@@ -168,31 +157,34 @@ public:
 	/**
 	 * @return a copy of the matrix on the same device
 	 */
-	GPUMatrix* copy() override {
-		GPUMatrix* C = new GPUMatrix(x, y);
+	GPUMatrix* copy() const override {
+		GPUMatrix* C = new GPUMatrix(y, x);
 		copy(C);
 		return C;
 	}
 	/**
 	 * @param a a copy of the matrix on the same device
 	 */
-	void copy(AbstractMatrix* m) override {
+	void copy(AbstractMatrix* m) const  override {
+		if(dynamic_cast<const GPUMatrix*>(m) == NULL){
+			ilog(ERROR, "Cannot copy NULL or GPUMatrix to non-GPUMatrix");
+		}
 		cpy(m->arr, arr, size * sizeof(double), cudaMemcpyKind::cudaMemcpyDeviceToDevice);
-		x = m->x;
-		y = m->y;
+		m->x = x;
+		m->y = y;
 	}
 	
-	void copyToCPU(double* CPUPtr) {
+	void copyToCPU(double* CPUPtr) const {
 		cpy(CPUPtr, arr, size * sizeof(double), cudaMemcpyKind::cudaMemcpyDeviceToHost);
 	}
-	double* copyToCPU() {
-		double* CPUPtr = (double*)malloc(size*sizeof(double));
+	double* copyToCPU() const {
+		double* CPUPtr = new double[size];// (double*)malloc(size*sizeof(double));
 		cpy(CPUPtr, arr, size * sizeof(double), cudaMemcpyKind::cudaMemcpyDeviceToHost);
 		return CPUPtr;
 	}
 
-	void print() override;
-	void print(int resolution) override { //print the matrix to the console with a defined number of digits
+	void print() const override;
+	void print(int resolution) const override { //print the matrix to the console with a defined number of digits
 		std::streamsize ss = std::cout.precision();
 		std::cout.precision(resolution);
 		for (int c = 0; c < y; c++) {
@@ -209,19 +201,21 @@ public:
 	/**
 	 * @return a copy of the matrix stored in CPU memory
 	 */
-	double* get_CPU_pointer(){
+	double* copy_to_CPU() const override{
 		return copyToCPU();
 	}
+
 	/**
-	 * @return the matrix stored in CPU memory - warning this may be a direct refernce to the Matrices array
+	 * @return a copy of the matrix stored in CPU memory
 	 */
-	double* get_CPU_pointer_read_only(){
+	const double* get_CPU_pointer() const override{
 		return copyToCPU();
 	}
 
-	void convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* net,  AbstractMatrix* out, int inX, int inY, int inZ, int outX, int outY, int outZ, int convX, int convY) override;
 
-	void convBackprop(AbstractMatrix* in, AbstractMatrix* layer, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* net, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) override;
+	void convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* out, int outY, int outX, int outZ, int convY, int convX, int convZ) override;
+
+	void convBackprop(AbstractMatrix* in, AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* out_error, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) override;
 
 
 

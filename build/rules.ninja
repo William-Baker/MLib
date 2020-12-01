@@ -22,6 +22,35 @@ rule CUSTOM_COMMAND
 #############################################
 # Rule for compiling CUDA files.
 
+rule CUDA_COMPILER__test
+  depfile = $DEP_FILE
+  deps = gcc
+  command = /bin/nvcc  $DEFINES $INCLUDES $FLAGS -x cu -c $in -o $out && /bin/nvcc  $DEFINES $INCLUDES $FLAGS -x cu -M $in -MT $out -o $DEP_FILE
+  description = Building CUDA object $out
+
+
+#############################################
+# Rule for compiling CXX files.
+
+rule CXX_COMPILER__test
+  depfile = $DEP_FILE
+  deps = gcc
+  command = /bin/g++-10  $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building CXX object $out
+
+
+#############################################
+# Rule for linking CXX executable.
+
+rule CXX_EXECUTABLE_LINKER__test
+  command = $PRE_LINK && /bin/g++-10  $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  description = Linking CXX executable $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling CUDA files.
+
 rule CUDA_COMPILER__main
   depfile = $DEP_FILE
   deps = gcc
@@ -35,7 +64,7 @@ rule CUDA_COMPILER__main
 rule CXX_COMPILER__main
   depfile = $DEP_FILE
   deps = gcc
-  command = /bin/g++-9  $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  command = /bin/g++-10  $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
   description = Building CXX object $out
 
 
@@ -43,7 +72,7 @@ rule CXX_COMPILER__main
 # Rule for linking CXX executable.
 
 rule CXX_EXECUTABLE_LINKER__main
-  command = $PRE_LINK && /bin/g++-9  $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /bin/g++-10  $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking CXX executable $TARGET_FILE
   restat = $RESTAT
 
@@ -54,7 +83,7 @@ rule CXX_EXECUTABLE_LINKER__main
 rule C_COMPILER__png-fix-itxt
   depfile = $DEP_FILE
   deps = gcc
-  command = /bin/gcc-9 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /bin/gcc-10 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
@@ -62,7 +91,7 @@ rule C_COMPILER__png-fix-itxt
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__png-fix-itxt
-  command = $PRE_LINK && /bin/gcc-9 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /bin/gcc-10 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
@@ -73,7 +102,7 @@ rule C_EXECUTABLE_LINKER__png-fix-itxt
 rule C_COMPILER__png
   depfile = $DEP_FILE
   deps = gcc
-  command = /bin/gcc-9 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /bin/gcc-10 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
@@ -81,7 +110,7 @@ rule C_COMPILER__png
 # Rule for linking C shared library.
 
 rule C_SHARED_LIBRARY_LINKER__png
-  command = $PRE_LINK && /bin/gcc-9 -fPIC $LANGUAGE_COMPILE_FLAGS $ARCH_FLAGS $LINK_FLAGS -shared $SONAME_FLAG$SONAME -o $TARGET_FILE $in $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /bin/gcc-10 -fPIC $LANGUAGE_COMPILE_FLAGS $ARCH_FLAGS $LINK_FLAGS -shared $SONAME_FLAG$SONAME -o $TARGET_FILE $in $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C shared library $TARGET_FILE
   restat = $RESTAT
 
@@ -100,7 +129,7 @@ rule CMAKE_SYMLINK_LIBRARY
 rule C_COMPILER__png_static
   depfile = $DEP_FILE
   deps = gcc
-  command = /bin/gcc-9 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /bin/gcc-10 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
@@ -119,7 +148,7 @@ rule C_STATIC_LIBRARY_LINKER__png_static
 rule C_COMPILER__pngtest
   depfile = $DEP_FILE
   deps = gcc
-  command = /bin/gcc-9 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /bin/gcc-10 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
@@ -127,7 +156,7 @@ rule C_COMPILER__pngtest
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__pngtest
-  command = $PRE_LINK && /bin/gcc-9 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /bin/gcc-10 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
@@ -138,7 +167,7 @@ rule C_EXECUTABLE_LINKER__pngtest
 rule C_COMPILER__pngvalid
   depfile = $DEP_FILE
   deps = gcc
-  command = /bin/gcc-9 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /bin/gcc-10 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
@@ -146,7 +175,7 @@ rule C_COMPILER__pngvalid
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__pngvalid
-  command = $PRE_LINK && /bin/gcc-9 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /bin/gcc-10 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
@@ -157,7 +186,7 @@ rule C_EXECUTABLE_LINKER__pngvalid
 rule C_COMPILER__pngunknown
   depfile = $DEP_FILE
   deps = gcc
-  command = /bin/gcc-9 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /bin/gcc-10 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
@@ -165,7 +194,7 @@ rule C_COMPILER__pngunknown
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__pngunknown
-  command = $PRE_LINK && /bin/gcc-9 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /bin/gcc-10 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
@@ -176,7 +205,7 @@ rule C_EXECUTABLE_LINKER__pngunknown
 rule C_COMPILER__pngstest
   depfile = $DEP_FILE
   deps = gcc
-  command = /bin/gcc-9 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /bin/gcc-10 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
@@ -184,7 +213,7 @@ rule C_COMPILER__pngstest
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__pngstest
-  command = $PRE_LINK && /bin/gcc-9 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /bin/gcc-10 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
@@ -195,7 +224,7 @@ rule C_EXECUTABLE_LINKER__pngstest
 rule C_COMPILER__pngfix
   depfile = $DEP_FILE
   deps = gcc
-  command = /bin/gcc-9 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /bin/gcc-10 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
@@ -203,7 +232,7 @@ rule C_COMPILER__pngfix
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__pngfix
-  command = $PRE_LINK && /bin/gcc-9 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /bin/gcc-10 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
@@ -214,7 +243,7 @@ rule C_EXECUTABLE_LINKER__pngfix
 rule C_COMPILER__pngimage
   depfile = $DEP_FILE
   deps = gcc
-  command = /bin/gcc-9 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /bin/gcc-10 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
@@ -222,7 +251,7 @@ rule C_COMPILER__pngimage
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__pngimage
-  command = $PRE_LINK && /bin/gcc-9 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /bin/gcc-10 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
@@ -231,7 +260,7 @@ rule C_EXECUTABLE_LINKER__pngimage
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /usr/bin/cmake -S/home/william/Documents/MatrixStrategy/MatrixStrategy -B/home/william/Documents/MatrixStrategy/MatrixStrategy/build
+  command = /usr/bin/cmake -S/home/w/Documents/MatrixStrategy -B/home/w/Documents/MatrixStrategy/build
   description = Re-running CMake...
   generator = 1
 
