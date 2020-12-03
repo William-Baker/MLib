@@ -33,6 +33,40 @@ void GPUMatrix::GPUSupported(bool* supported) {
 	}
 }
 
+
+
+
+
+GPUMatrix::GPUMatrix(const AbstractMatrix<double>* src) : GPUMatrix(){ 
+	if(dynamic_cast<const CPUMatrix*>(src)){
+		const CPUMatrix* actual = static_cast<const CPUMatrix*>(src);
+		x = actual->x;
+		y = actual->y;
+		size = actual->get_size();
+		arr = allocate_GPU_memory<double>(size);
+		copy_GPU_memory(arr, actual->arr, size, cudaMemcpyHostToDevice);
+	}
+	else if(dynamic_cast<const GPUMatrix*>(src)){
+		const GPUMatrix* actual = static_cast<const GPUMatrix*>(src);
+		transfer(actual->copy());
+	}
+	else{
+		ilog(FATAL_ERROR, "unknown source for copy constructor");
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+//Functionality
+
 GPUMatrix* GPUMatrix::multiply(AbstractMatrix* B) { //multiplies two matrices on the GPU 
 	GPUMatrix* C = new GPUMatrix(y, B->x);
 	multiply(B, C);
@@ -341,8 +375,7 @@ void GPUMatrix::transpose(GPUMatrix* B) {
 }
 
 void GPUMatrix::print() const { //prints the matrix to the console
-	CPUMatrix m(y, x);
-	copyToCPU(m.arr);
-	m.print();
+	CPUMatrix temp(this);
+	temp.print();
 }
 

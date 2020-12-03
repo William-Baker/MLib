@@ -1,8 +1,16 @@
 #pragma once
 #include <stdio.h>
+#include <cstring>
 #include <string>
 #include <iostream>
 #include <chrono>
+#include <thread>
+
+
+#include <cublas_v2.h>
+#include <cuda_runtime.h>
+#include "device_launch_parameters.h"
+
 #define __VERBOSE__
 
 
@@ -59,11 +67,11 @@ static T* allocate_CPU_memory(size_t count){
     int attempts = 0;
     while(!allocation){
       allocation = std::malloc(count * sizeof(T));
-      std::this_thread::sleep_for(std::chrono::duration<std::chrono::milliseconds>(std::pow(2, attempts)));
+      std::this_thread::sleep_for(std::chrono::milliseconds((int)(std::pow(2, attempts))));
       ilog(ERROR, "CPU memory allocation failed");
     }
   }
-  return allocation;
+  return static_cast<T*>(allocation);
 }
 
 
@@ -82,10 +90,10 @@ static T* allocate_GPU_memory(size_t count){
   auto err = cudaMalloc(&allocation, count * sizeof(T));
   if(err != cudaSuccess){
     int attempts = 0;
-    while(!= cudaSuccess){
+    while(err != cudaSuccess){
       err = cudaMalloc(&allocation, count * sizeof(T));
-      std::this_thread::sleep_for(std::chrono::duration<std::chrono::milliseconds>(std::pow(2, attempts)));
-      ilog(ERROR, "GPU memory allocation failed" + cudaGetErrorString(err));
+      std::this_thread::sleep_for(std::chrono::milliseconds((int)(std::pow(2, attempts))));
+      ilog(ERROR, "GPU memory allocation failed" + std::string(cudaGetErrorString(err)));
     }
   }
   return allocation;
@@ -93,13 +101,13 @@ static T* allocate_GPU_memory(size_t count){
 
 template<typename T>
 static void copy_GPU_memory(T* dst, T* src, size_t count, cudaMemcpyKind kind){
-  auto err = cudaMemcpy(dst, src, size, kind);
+  auto err = cudaMemcpy(dst, src, count, kind);
   if(err != cudaSuccess){
     int attempts = 0;
-    while(!= cudaSuccess){
-      err = cudaMemcpy(dst, src, size, kind);
-      std::this_thread::sleep_for(std::chrono::duration<std::chrono::milliseconds>(std::pow(2, attempts)));
-      ilog(ERROR, "GPU memory copy failed" + cudaGetErrorString(err));
+    while(err != cudaSuccess){
+      err = cudaMemcpy(dst, src, count, kind);
+      std::this_thread::sleep_for(std::chrono::milliseconds((int)(std::pow(2, attempts))));
+      ilog(ERROR, "GPU memory copy failed" + std::string(cudaGetErrorString(err)));
     }
   }
 }

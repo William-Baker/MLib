@@ -9,6 +9,8 @@
 #include "CPUMatrix.hpp"
 
 
+#define CHECK_DIMS //enables dimension checking for all mathematical matrix calls
+
 
 class Matrix {
 private:
@@ -22,7 +24,7 @@ public:
 	Matrix() {
 		//defaultConstructor
 	}
-	Matrix(size_t Y, size_t X) {
+	Matrix(size_t Y, size_t X) : Matrix() {
 		
 		if (checkGPU()) {
 			m = new GPUMatrix(Y, X);
@@ -31,7 +33,7 @@ public:
 			m = new CPUMatrix(Y, X);
 		}
 	}
-	Matrix(AbstractMatrix<double>* a) {
+	Matrix(AbstractMatrix<double>* a) : Matrix() {
 		m = a;
 	}
 
@@ -39,7 +41,7 @@ public:
 	 * @param s structure to convert to a matrix
 	 * @param deconstruct_implementation true to delete the original when deconstructing, set to false if using a matrix as a wrapper
 	 */
-	Matrix(MLStruct<double>* s, bool deconstruct_implementation){
+	Matrix(MLStruct<double>* s, bool deconstruct_implementation) : Matrix(){
 		this->deconstruct_implementation = deconstruct_implementation;
 		if(s->struct_type == MLStruct<double>::StructType::STRUCT_GPUMatrix){
 			m = static_cast<AbstractMatrix<double>*>(s);
@@ -58,45 +60,45 @@ public:
 
 	Matrix(const Matrix& B ) = delete;
 
-	Matrix(Matrix && B ){
+	Matrix(Matrix && B ) : Matrix(){
 		m = B.m;
 		B.m = 0;
 	}
 
 	Matrix(Matrix& B ) = delete;
 
-	/**
-	 * Copy any matrix to this instace, a new instance will aways be created
-	 * this - the destination matrix
-	 * @param A the source matrix
-	 */
-	void copyToThis(const Matrix& A) {
-		const AbstractMatrix<double>* a = A.getStrategy();
-		if(dynamic_cast<const CPUMatrix*>(a)){
-			if (checkGPU()) {	
-				m = new GPUMatrix(a->y, a->x, a->arr, GPUMatrix::MEM::CPU);
-			}
-			else {
-				m = a->copy();
-			}
-		}
-		else if (dynamic_cast<const GPUMatrix*>(a)){
-			if (checkGPU()) {		
-				m = a->copy();
-			}
-			else {
-				m = new CPUMatrix(a->y, a->x, A.copy_to_CPU());
-			}
-		}
-	}
+	// /**
+	//  * Copy any matrix to this instace, a new instance will aways be created
+	//  * this - the destination matrix
+	//  * @param A the source matrix
+	//  */
+	// void copyToThis(const Matrix& A) {
+	// 	const AbstractMatrix<double>* a = A.getStrategy();
+	// 	if(dynamic_cast<const CPUMatrix*>(a)){
+	// 		const CPUMatrix* actual = static_cast<const CPUMatrix*>(a);
+	// 		if (checkGPU()) {	
+	// 			m = new GPUMatrix(actual->copy());
+	// 		}
+	// 		else {
+	// 			m = a->copy();
+	// 		}
+	// 	}
+	// 	else if (dynamic_cast<const GPUMatrix*>(a)){
+	// 		if (checkGPU()) {		
+	// 			m = a->copy();
+	// 		}
+	// 		else {
+	// 			m = new CPUMatrix(a->y, a->x, A.copy_to_CPU());
+	// 		}
+	// 	}
+	// }
 
 
-	Matrix(size_t Y, size_t X, double* arr){
+	Matrix(size_t Y, size_t X, double* arr) : Matrix(){
 		CPUMatrix* temp = new CPUMatrix(Y, X, arr);
 		if (checkGPU()) {
-			Matrix temp_wrapper(temp);
-			copyToThis(temp_wrapper);
-			temp_wrapper.delete_array_ref();//we dont want to delete arr
+			m = new GPUMatrix(temp);
+			delete temp;
 		}
 		else{
 			m = temp;
@@ -116,30 +118,45 @@ public:
 
 	} */
 	
+	private:
 	template<typename T>
-	void copyToThis(T* arr){
-		CPUMatrix* temp = new CPUMatrix(m->y, m->x);
-		for(size_t index = 0; index < temp->get_size(); index++){
-			temp->arr[index] = static_cast<double>(arr[index]);
-		}
-		Matrix temp_wrapper(temp);
-		copyToThis(temp_wrapper);
-		temp->delete_array_ref();
-
-	}
-
-
-	//TODO have a look
-	template<typename T>
-	Matrix(size_t Y, size_t X, T* arr){
+	void template_construct_host_array(size_t Y, size_t X, T* arr){
 		CPUMatrix* temp = new CPUMatrix(m->y, m->x);
 		for(size_t index = 0; index < temp->get_size(); index++){
 			temp->arr[index] = (double)(arr[index]);
 		}
-		Matrix temp_wrapper(temp);
-		copyToThis(temp_wrapper);
-		temp->delete_array_ref();
+		if(checkGPU()){
+			m = new GPUMatrix(temp);
+			delete temp;
+		}
+		else
+		{
+			m = temp;
+		}
+	}
+	public:
 
+	template<typename T>
+	Matrix(size_t Y, size_t X, T* arr) : Matrix(){
+		template_construct_host_array(Y, X, arr);
+	}
+
+	template<typename T>
+	void copyToThis(T* arrIn){
+		template_construct_host_array(m->x, m->y, arrIn);
+	}
+
+	/**
+	 * Copy a host array to this matrix
+	 */
+	
+	void copyToThis(double* arr){
+		CPUMatrix* temp = new CPUMatrix(m->y, m->x, arr);
+		
+		delete m; //TODO might have to change to if m delte m
+
+		if(checkGPU()) m = new GPUMatrix(temp);
+		else m = new CPUMatrix(temp);
 	}
 
 	Matrix& operator=(Matrix&& B) {
@@ -159,13 +176,16 @@ public:
 	/**
 	 * @return a copy of the matrix on the same device
 	 */
-	Matrix copy() const { return Matrix(m->copy()); }
-	/**
-	 * @param a a copy of the matrix on the same device
-	 */
-	void copy(Matrix& a) const {m->copy(a.getStrategy());}
+	Matrix copy() const {
+		if(checkGPU()){ //we have a GPU
+			return Matrix(new GPUMatrix(m));
 
-
+		}
+		else{
+			return Matrix(new CPUMatrix(m));
+			
+		}
+	}
 
 
 	AbstractMatrix<double>* getStrategy() { return m; }
@@ -175,11 +195,19 @@ public:
 	static void forceUseCPU();
 	static bool checkGPU();
 
-	double* copy_to_CPU() const {return m->copy_to_CPU();}
 
-	const double* get_CPU_pointer() const { return m->get_CPU_pointer(); }
-	
+	double* get_implementation_array() { return m->get_implementation_array(); }
+	const double* get_implementation_array() const { return m->get_implementation_array(); }
 
+
+	/**
+	 * @return a copy of the matrix stored in host memory
+	 */
+	double* copy_array_host() const {return m->copy_array_host();}
+	/**
+	 * @return the matrix stored in source (device/host) memory - warning this may be a direct refernce to the Matrices array
+	 */
+	const double* get_array_host() const {return m->get_array_host();}
 	
 	/**
 	 * used to de-refence array to prevent freeing during deconstruction
@@ -280,64 +308,72 @@ public:
 		return Matrix(m->multiply(B.getStrategy()));
 	}
 	void multiply(Matrix& B, Matrix& C) {
+		#ifdef CHECK_DIMS
 		if (width() != B.height()) {
 			throw("Dimension mismatch");
 		}
+		#endif
 		m->multiply(B.getStrategy(), C.getStrategy()); 
 	}
 
 	Matrix multiplyA(Matrix& B) { return Matrix(m->multiplyA(B.getStrategy()));  }
 	void multiplyA(Matrix& B, Matrix& C) { 
+		#ifdef CHECK_DIMS
 		if (height() != B.height()) {
 			throw("Dimension mismatch");
 		}
+		#endif
 		return m->multiplyA(B.getStrategy(), C.getStrategy());  
 	}
 
 	Matrix multiplyB(Matrix& B) { return Matrix(m->multiplyB(B.getStrategy())); }
 	void multiplyB(Matrix& B, Matrix& C) { 
+		#ifdef CHECK_DIMS
 		if (width() != B.width()) {
 			throw("Dimension mismatch");
 		}
+		#endif
 		return m->multiplyB(B.getStrategy(), C.getStrategy()); 
 	}
 
 	Matrix multiplyAB(Matrix& B) { return Matrix(m->multiplyAB(B.getStrategy())); }
 	void multiplyAB(Matrix& B, Matrix& C) {
+		#ifdef CHECK_DIMS
 		if (height() != B.width()) {
 			throw("Dimension mismatch");
 		}
+		#endif
 		return m->multiplyAB(B.getStrategy(), C.getStrategy());
 	}
 
 	Matrix multiplyElementWise(Matrix& B) {
-		if (width() != B.width() || height() != B.height() ) 
+		#ifdef CHECK_DIMS
+		if(!((width() == B.width()) && (height() == B.height()) ))
 			throw("Dimension mismatch");
-		
-		
+		#endif
 		return Matrix(m->multiplyElementWise(B.getStrategy()));
 	}
 
 	void multiplyElementWise(Matrix& B, Matrix& C){
-		/* if (width() != B.width() || height() != B.height()) {
-			throw("Dimension mismatch");
-		} */
+		#ifdef CHECK_DIMS
 		if(!((width() == B.width() && width() == C.width()) && (height() == B.height() && height() == C.height()) ))
 			throw("Dimension mismatch");
-		 //TODO migrate this to the others
+		#endif
 		m->multiplyElementWise(B.getStrategy(), C.getStrategy());
 	}
 
 	Matrix divideElementWise(Matrix& B) {
-		if (width() != B.width() || height() != B.height()) {
+		#ifdef CHECK_DIMS
+		if(!((width() == B.width()) && (height() == B.height()) ))
 			throw("Dimension mismatch");
-		}
+		#endif
 		return Matrix(m->divideElementWise(B.getStrategy()));
 	}
 	void divideElementWise(Matrix& B, Matrix& C) {
-		if (width() != B.width() || height() != B.height()) {
+		#ifdef CHECK_DIMS
+		if(!((width() == B.width() && width() == C.width()) && (height() == B.height() && height() == C.height()) ))
 			throw("Dimension mismatch");
-		}
+		#endif
 		return m->divideElementWise(B.getStrategy(), C.getStrategy());
 	}
 
@@ -450,8 +486,8 @@ public:
 	static std::string compare(Matrix& a, Matrix& b, double expectedMin, double expectedMAx) {
 		const double acceptable_error = 1e-5;
 		
-		const double* A = a.get_CPU_pointer();
-		const double* B = b.get_CPU_pointer();
+		const double* A = a.get_array_host();
+		const double* B = b.get_array_host();
 		size_t size = a.size();
 		bool dissimilar = false;
 		int errorA = 0;

@@ -1,10 +1,40 @@
 
 #include "CPUMatrix.hpp"
+#include "GPUMatrix.hpp"
 #include "Matrix.hpp"
 
 
 
 //=========================================================== CPU Matrix ==========================================================================
+
+CPUMatrix::CPUMatrix(const AbstractMatrix<double>* src) : CPUMatrix(){
+	if(dynamic_cast<const CPUMatrix*>(src)){
+		const CPUMatrix* actual = static_cast<const CPUMatrix*>(src);
+		transfer(actual->copy());
+	}
+	else if(dynamic_cast<const GPUMatrix*>(src)){
+		const GPUMatrix* actual = static_cast<const GPUMatrix*>(src);
+		x = actual->x;
+		y = actual->y;
+		size = actual->get_size();
+		copy_GPU_memory<double>(arr, actual->arr, size, cudaMemcpyKind::cudaMemcpyDeviceToHost);
+	}
+	else{
+		ilog(FATAL_ERROR, "unknown source for copy constructor");
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+//Functionality
 
 void CPUMatrix::randomFill(double min, double max) {
 	std::uniform_real_distribution<double> RandDist(min, max);

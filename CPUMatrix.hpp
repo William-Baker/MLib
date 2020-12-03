@@ -1,6 +1,5 @@
 #pragma once
 #include "Templates.hpp"
-#include "GPUMatrix.hpp"
 #include "include/IO.hpp"
 #include <iostream>
 #include <cmath>
@@ -11,15 +10,17 @@ public:
 
 //Constructors
 	CPUMatrix() { //Null constructor
-		arr = nullptr;
 		struct_type = StructType::STRUCT_CPUMatrix;
+		size = 0;
+		y = 0;
+		x = 0;
+		arr = nullptr;
 	}
 	/**
 	 * standard constructor taking the number of columns in the matrix and the number of rows
 	 * then allocating the appropriate amount of memory on the device
 	 */
-	CPUMatrix(size_t Y, size_t X){
-		struct_type = StructType::STRUCT_CPUMatrix;
+	CPUMatrix(size_t Y, size_t X) : CPUMatrix(){
 		size = X * Y;
 		arr = allocate_CPU_memory<double>(size);//static_cast<double*>(malloc(size * sizeof(double)));
 		y = Y;
@@ -27,33 +28,27 @@ public:
 	}
 	/**
 	 * Construct CPU matrix, using existing array
-	 * Data will NOT be copied
+	 * Data will NOT be copied - if the source is correct
 	 * @param Y Y dimension
 	 * @param X X dimension
 	 * @param arr existing array to use, assumed of size Y*X
 	 */
-	CPUMatrix(size_t Y, size_t X, double* arrIn, MEM memory_location_of_array = CPU) {
+	CPUMatrix(size_t Y, size_t X, double* arrIn, MEM memory_location_of_array = CPU) : CPUMatrix() {
+		size = X * Y;
+		y = Y;
+		x = X;
 		if(memory_location_of_array == CPU){
-			struct_type = StructType::STRUCT_CPUMatrix;
-			size = X * Y;
 			arr = arrIn;
-			y = Y;
-			x = X;
 		}
 		else{
 			arr = allocate_CPU_memory<double>(size);
-			struct_type = StructType::STRUCT_CPUMatrix;
-			size = X * Y;
-			y = Y;
-			x = X;
 			copy_GPU_memory(arr, arrIn, size, cudaMemcpyKind::cudaMemcpyDeviceToHost);
 		}
 	}
 
 	CPUMatrix(CPUMatrix& src) = delete;
 
-	CPUMatrix(CPUMatrix&& src){
-		struct_type = StructType::STRUCT_CPUMatrix;
+	CPUMatrix(CPUMatrix&& src) : CPUMatrix(){
 		arr = src.arr;
 		x = src.x;
 		y = src.y;
@@ -63,29 +58,14 @@ public:
 		src.x = src.y = src.size = 0;
 	}
 
-	CPUMatrix(const AbstractMatrix<double>* src){
-		struct_type = StructType::STRUCT_CPUMatrix;
-		if(dynamic_cast<const CPUMatrix*>(src)){
-			const CPUMatrix* actual = static_cast<const CPUMatrix*>(src);
-			Transfer(actual->copy());
-		}
-		else if(dynamic_cast<const GPUMatrix*>(src)){
-			const GPUMatrix* actual = static_cast<const GPUMatrix*>(src);
-			x = actual->x;
-			y = actual->y;
-			size = actual->get_size();
-			copy_GPU_memory<double>(arr, actual->arr, size, cudaMemcpyKind::cudaMemcpyDeviceToHost);
-		}
-		else{
-			ilog(FATAL_ERROR, "unknown source for copy constructor");
-		}
-	}
+	CPUMatrix(const AbstractMatrix<double>* src);
 
 
 //Copy
 	CPUMatrix copy() const{
-		CPUMatrix m(y, x);
-		copy_CPU_memory(m.arr, arr, size);
+		double* temp = allocate_CPU_memory<double>(size);
+		copy_CPU_memory(temp, arr, size);
+		return CPUMatrix(y, x, temp);
 	}
 
 	/**
@@ -99,12 +79,12 @@ public:
 	/**
 	 * @return the matrix stored in CPU memory - warning this may be a direct refernce to the Matrices array
 	 */
-	const double* get_array_from_host() const override{
+	const double* get_array_host() const override{
 		return arr;
 	}
 
 //Transfers
-	void Transfer(CPUMatrix&& src){
+	void transfer(CPUMatrix&& src){
 		x = src.x;
 		y = src.y;
 		size = src.size;
@@ -113,7 +93,7 @@ public:
 		src.arr = 0;
 		src.x = src.y = src.size = 0;
 	}
-	void Transfer(CPUMatrix& src){
+	void transfer(CPUMatrix& src){
 		x = src.x;
 		y = src.y;
 		size = src.size;

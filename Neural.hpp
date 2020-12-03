@@ -699,7 +699,8 @@ public:
 			GPUMatrix* GPUOutputs = dynamic_cast<GPUMatrix*>(left->outputs);
 			CPUMatrix* CPUInputs = dynamic_cast<CPUMatrix*>(right->inputs);
 			CPUMatrix* CPUOutputs = dynamic_cast<CPUMatrix*>(right->outputs);
-			swapMatrix(GPUInputs, GPUOutputs, CPUInputs, CPUOutputs);
+			swapMatrix(GPUInputs, CPUInputs);
+			swapMatrix(GPUOutputs, CPUInputs);
 
 			//left GPU, right CPU
 		}
@@ -710,7 +711,8 @@ public:
 				CPUMatrix* CPUOutputs = dynamic_cast<CPUMatrix*>(left->outputs);
 				GPUMatrix* GPUInputs = dynamic_cast<GPUMatrix*>(right->inputs);
 				GPUMatrix* GPUOutputs = dynamic_cast<GPUMatrix*>(right->outputs);
-				swapMatrix(GPUInputs, GPUOutputs, CPUInputs, CPUInputs);
+				swapMatrix(GPUInputs, CPUInputs);
+				swapMatrix(GPUOutputs, CPUInputs);
 				
 				//left CPU, right GPU
 			}
@@ -724,25 +726,18 @@ public:
 		std::cout << "unknown MLStruct" << std::endl;
 	}
 private:
-	static void swapMatrix(GPUMatrix* GPUInputs, GPUMatrix* GPUOutputs, CPUMatrix* CPUInputs, CPUMatrix* CPUOutputs) {
+	static void swapMatrix(GPUMatrix* g, CPUMatrix* c) {
 		std::lock_guard<std::mutex> lock(resMutex);
-		CPUMatrix* CPUInputsTemp = new CPUMatrix(GPUInputs->y, GPUInputs->x, GPUInputs->copy_to_CPU());
-		CPUMatrix* CPUOutputsTemp = new CPUMatrix(GPUOutputs->y, GPUOutputs->x, GPUOutputs->copy_to_CPU());
+		CPUMatrix* CPUInputsTemp = new CPUMatrix(static_cast<AbstractMatrix<double>*>(g));
+		g->~GPUMatrix();
 
-		GPUInputs->~GPUMatrix();
-		GPUOutputs->~GPUMatrix();
+		g = new GPUMatrix(static_cast<AbstractMatrix<double>*>(c));
 
-		GPUInputs = new GPUMatrix(CPUInputs->y, CPUInputs->x, CPUInputs->arr, GPUMatrix::MEM::CPU);
-		GPUOutputs = new GPUMatrix(CPUInputs->y, CPUInputs->x, CPUOutputs->arr, GPUMatrix::MEM::CPU);
+		c->~CPUMatrix();
 
-		CPUInputs->~CPUMatrix();
-		CPUOutputs->~CPUMatrix();
-
-		CPUInputs = CPUInputsTemp;
-		CPUOutputs = CPUOutputsTemp;
-		
-
+		c = CPUInputsTemp;
 	}
+
 
 };
 

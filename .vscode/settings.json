@@ -67,5 +67,9 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp"
-    }
+    },
+    "files.watcherExclude": {
+        "**/target": true
+    },
+    "C_Cpp.default.compilerPath": "/home/w/.vscode/extensions/bartmanabyss.amiga-debug-1.0.0\\bin\\opt\\bin\\m68k-amiga-elf-gcc.exe"
 }

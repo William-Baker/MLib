@@ -24,8 +24,7 @@ namespace MatrixMathTests{
         std::cout << std::endl;
         Matrix::forceUseGPU();
     #endif
-        Matrix A;
-        A.copyToThis(CA);
+        Matrix A = CA.copy();
         Matrix C = A.transposeNew();
     #ifdef DEBUG
         C.print();
@@ -107,9 +106,8 @@ namespace MatrixMathTests{
 
         Matrix::forceUseGPU();
 
-        Matrix A, B;
-        A.copyToThis(CA);
-        B.copyToThis(CB);
+        Matrix A = CA.copy();
+        Matrix B = CB.copy();
         Matrix arr(A.height(), B.width());
         A.multiply(B, arr);
         string s = Matrix::compare(arr, C, 0, 9 * 10);
@@ -139,9 +137,8 @@ namespace MatrixMathTests{
         #endif
 
         Matrix::forceUseGPU();
-        Matrix A, B;
-        A.copyToThis(CA);
-        B.copyToThis(CB);
+        Matrix A = CA.copy();
+        Matrix B = CB.copy();
         const int count = 100;
         std::vector<Matrix> arr;
 
@@ -201,9 +198,8 @@ namespace MatrixMathTests{
         #endif
 
         Matrix::forceUseGPU();
-        Matrix A, B;
-        A.copyToThis(CA);
-        B.copyToThis(CB);
+        Matrix A = CA.copy();
+        Matrix B = CB.copy();
         const int count = 100;
         std::vector<Matrix> arr;
 
@@ -260,9 +256,8 @@ namespace MatrixMathTests{
         #endif
 
         Matrix::forceUseGPU();
-        Matrix A, B;
-        A.copyToThis(CA);
-        B.copyToThis(CB);
+        Matrix A = CA.copy();
+        Matrix B = CB.copy();
         const int count = 100;
         std::vector<Matrix> arr;
 
@@ -322,10 +317,8 @@ namespace MatrixMathTests{
         std::cout << std::endl;
     #endif
         Matrix::forceUseGPU();
-        Matrix A;
-        A.copyToThis(CA);
-        Matrix B;
-        B.copyToThis(CB);
+        Matrix A = CA.copy();
+        Matrix B = CB.copy();
         Matrix C(A.height(), A.width());
         A.multiplyElementWise(B, C);
         //Matrix C = A.multiplyElementWise(B);
@@ -356,8 +349,7 @@ namespace MatrixMathTests{
     #endif
         Matrix::forceUseGPU();
 
-        Matrix A;
-        A.copyToThis(CA);
+        Matrix A = CA.copy();
         Matrix C = A.sigmoid();
     #ifdef DEBUG
         C.print();
@@ -379,12 +371,12 @@ namespace MatrixMathTests{
         std::cout << std::endl;
     #endif
         Matrix::forceUseGPU();
-        A.copyToThis(CC);
+        auto Acc = CC.copy();
     #ifdef DEBUG
-        A.print();
+        Acc.print();
         std::cout << std::endl;
     #endif
-        C = A.sigmoidDifferential();
+        C = Acc.sigmoidDifferential();
     #ifdef DEBUG
         C.print();
     #endif
@@ -413,10 +405,8 @@ namespace MatrixMathTests{
         std::cout << std::endl;
     #endif
         Matrix::forceUseGPU();
-        Matrix A;
-        A.copyToThis(CA);
-        Matrix B;
-        B.copyToThis(CB);
+        Matrix A = CA.copy();
+        Matrix B = CB.copy();
         Matrix C = A.add(B);
     #ifdef DEBUG
         C.print();
@@ -434,8 +424,7 @@ namespace MatrixMathTests{
         Matrix::forceUseCPU();
         Matrix CA(4, 3);
         CA.randomFill(-10, 10);
-        Matrix CC;
-        CC.copyToThis(CA);
+        Matrix CC = CA.copy();
         Matrix CB(4, 3);
         CB.randomFill(-10, 10);
         CA.addAssign(CB);
@@ -444,10 +433,8 @@ namespace MatrixMathTests{
         std::cout << std::endl;
     #endif
         Matrix::forceUseGPU();
-        Matrix A;
-        A.copyToThis(CC);
-        Matrix B;
-        B.copyToThis(CB);
+        Matrix A = CC.copy();
+        Matrix B = CB.copy();
         A.addAssign(B);
     #ifdef DEBUG
         A.print();
@@ -478,10 +465,8 @@ namespace MatrixMathTests{
         std::cout << std::endl;
     #endif
         Matrix::forceUseGPU();
-        Matrix A;
-        A.copyToThis(CA);
-        Matrix B;
-        B.copyToThis(CB);
+        Matrix A = CA.copy();
+        Matrix B = CB.copy();
         Matrix C = A.subtract(B);
     #ifdef DEBUG
         C.print();
@@ -499,8 +484,7 @@ namespace MatrixMathTests{
         Matrix::forceUseCPU();
         Matrix CA(4, 3);
         CA.randomFill(-10, 10);
-        Matrix CC;
-        CC.copyToThis(CA);
+        Matrix CC = CA.copy();
         Matrix CB(4, 3);
         CB.randomFill(-10, 10);
         CA.subtractAssign(CB);
@@ -509,10 +493,8 @@ namespace MatrixMathTests{
         std::cout << std::endl;
     #endif
         Matrix::forceUseGPU();
-        Matrix A;
-        A.copyToThis(CC);
-        Matrix B;
-        B.copyToThis(CB);
+        Matrix A = CC.copy();
+        Matrix B = CB.copy();
         A.subtractAssign(B);
     #ifdef DEBUG
         A.print();
@@ -541,8 +523,7 @@ namespace MatrixMathTests{
     #endif
         Matrix::forceUseGPU();
 
-        Matrix A;
-        A.copyToThis(CA);
+        Matrix A = CA.copy();
         Matrix C = A.addConst(3);
 
     #ifdef DEBUG

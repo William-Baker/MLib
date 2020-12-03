@@ -86,25 +86,24 @@ public:
         m = M;
     }
 
-    CPUTensor(CPUMatrix* M, size_t Z, size_t A, size_t B){
+    CPUTensor(CPUMatrix* M, size_t Z, size_t A, size_t B){ //TODO combine others into this
         struct_type = StructType::STRUCT_CPUTensor;
         construct_5d(M, Z, A, B);
         m = M;
     }
 
-    void set_implementation(AbstractMatrix<double>* imp) override{
-        m = dynamic_cast<CPUMatrix*>(imp);
-    }
     
 
+    //I/O
+
     void print() const override{
-        for(int B = 0; B < b; B++){
-            for(int A = 0; A < a; A++){
+        for(auto B = 0; B < b; B++){
+            for(auto A = 0; A < a; A++){
 
 
-                for(int Y = 0; Y < y; Y++){
-                    for(int Z = 0; Z < z; Z++){
-                        for(int X = 0; X < x; X++){
+                for(auto Y = 0; Y < y; Y++){
+                    for(auto Z = 0; Z < z; Z++){
+                        for(auto X = 0; X < x; X++){
                             std::cout << index(X,Y, Z) << " ";
                         }
                         std::cout << std::endl;
@@ -119,6 +118,9 @@ public:
         }
     }
 
+
+    //Utitlity
+
     AbstractMatrix<double>* get_implementation() override{
         return m;
     }
@@ -127,22 +129,30 @@ public:
         return m;
     }
 
-    static CPUTensor copy(const CPUTensor & x)  {
-        return CPUTensor(x.m->copy(), x.z, x.a , x.b);
+    void set_implementation(AbstractMatrix<double>* imp) override{
+        m = dynamic_cast<CPUMatrix*>(imp);
     }
-/*     static CPUTensor copy(const CPUTensor && x)  {
-        return CPUTensor(x.m->copy(), x.z, x.a , x.b);
+
+    double* get_implementation_array() override {return m->get_implementation_array();}
+    
+    const double* get_implementation_array() const override {return m->get_implementation_array();}
+
+    static CPUTensor copy(CPUTensor & x){
+        return CPUTensor(new CPUMatrix(x.m), x.z, x.a , x.b);
     }
- */
+
     void copy(AbstractTensor* m) const override{
-        m = new CPUTensor(static_cast<CPUMatrix*>(m->get_implementation()->copy()), z, a, b);
+        m = new CPUTensor(new CPUMatrix(m->get_implementation()), z);
     }
 
     AbstractTensor* copy_to_CPU_tensor() const override{
-        AbstractTensor* temp;
-        copy(temp);
-        return temp;
+        return new CPUTensor(new CPUMatrix(m), z);
     }
+
+
+
+
+    //Functionality
 
     /**
      * @param layer 4D tensor to convolute over the input

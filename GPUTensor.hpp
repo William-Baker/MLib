@@ -8,6 +8,8 @@ class GPUTensor : public AbstractTensor{
 public:
     GPUMatrix* m;
     
+    //constructors
+
     GPUTensor(){
         struct_type = StructType::STRUCT_GPUTensor;
         order = 0;
@@ -41,7 +43,7 @@ public:
         m = M;
     }
 
-    GPUTensor(GPUMatrix* M, size_t Z, size_t A, size_t B){
+    GPUTensor(GPUMatrix* M, size_t Z, size_t A, size_t B){ //TODO combine other constructors into this?
         struct_type = StructType::STRUCT_GPUTensor;
         construct_5d(M, Z, A, B);
         m = M;
@@ -50,14 +52,17 @@ public:
     
 
     
-
-
+    //I/O
 
     void print() const override{
         CPUTensor* cpu_version = dynamic_cast<CPUTensor*>(copy_to_CPU_tensor());
         cpu_version->print();
         cpu_version->~CPUTensor();
     }
+
+
+
+    //Utitlity
 
     AbstractMatrix<double>* get_implementation() override{
         return m;
@@ -71,17 +76,25 @@ public:
         m = dynamic_cast<GPUMatrix*>(imp);
     }
 
-     static GPUTensor copy(GPUTensor & x){
-        return GPUTensor(x.m->copy(), x.z, x.a , x.b);
+    double* get_implementation_array() override {return m->get_implementation_array();}
+    
+    const double* get_implementation_array() const override {return m->get_implementation_array();}
+
+    static GPUTensor copy(GPUTensor & x){
+        return GPUTensor(new GPUMatrix(x.m), x.z, x.a , x.b);
     }
 
     void copy(AbstractTensor* m) const override{
-        m = new GPUTensor(static_cast<GPUMatrix*>(m->get_implementation()->copy()), z);
+        m = new GPUTensor(new GPUMatrix(m->get_implementation()), z);
     }
 
     AbstractTensor* copy_to_CPU_tensor() const override{
-        return new CPUTensor(new CPUMatrix(y*z, x, m->copy_to_CPU()), z);
+        return new CPUTensor(new CPUMatrix(m), z);
     }
+
+
+
+    //Functionality
     
     void convolute(AbstractTensor* layer, AbstractTensor* bias, AbstractTensor* out);
 

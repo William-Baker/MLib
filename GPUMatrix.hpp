@@ -9,6 +9,7 @@
 #include "Templates.hpp"
 #include "include/IO.hpp"
 
+
 class GPUMatrix : public AbstractMatrix<double> {
 public:
 	static cublasHandle_t* handle;
@@ -19,24 +20,19 @@ public:
     static void GPUSupported(bool* supported);
 
 	GPUMatrix() { //Null constructor
+		struct_type = StructType::STRUCT_GPUMatrix;
+		size = 0;
+		y = 0;
+		x = 0;
 		arr = nullptr;
-		struct_type = StructType::STRUCT_GPUMatrix;
 	}
-	GPUMatrix(size_t Y, size_t X) {//standard constructor taking the number of columns in the matrix and the number of rows
+	GPUMatrix(size_t Y, size_t X) : GPUMatrix() {//standard constructor taking the number of columns in the matrix and the number of rows
 			//then allocating the appropriate amount of memory on the device
-		struct_type = StructType::STRUCT_GPUMatrix;
 		size = X * Y;
 		y = Y;
 		x = X;
-		allocate_GPU_memory(arr, size);
+		arr = allocate_GPU_memory<double>(size);
 	}
-	//Copy constructor
-	// GPUMatrix(GPUMatrix* m) {
-	// 	struct_type = StructType::STRUCT_GPUMatrix;
-	// 	m->copy(this);
-	// }
-
-	
 
 	/**
 	 * Construct CPU matrix, using existing array
@@ -46,32 +42,86 @@ public:
 	 * @param arr existing array to use, assumed of size Y*X
 	 * @param array_location the Memory type the pointer is pointing to, CPU/GPU/...
 	 */
-	GPUMatrix(size_t Y, size_t X, double* arr, MEM array_location) {
+	GPUMatrix(size_t Y, size_t X, double* arrIn, MEM array_location) : GPUMatrix() {
 		y = Y;
 		x = X;
 		size = x * y;
-		if (this->arr != 0) {
-			cudaFree(this->arr);//TODO remove if this is never triggered
-		}
 		if(array_location == GPU){
-			this->arr = arr;
+			this->arr = arrIn;
 		}
 		else{
-			alloc(this->arr, size);
-			cpy(this->arr, arr, size*sizeof(double), cudaMemcpyHostToDevice);
+			arr = allocate_GPU_memory<double>(size);
+			copy_GPU_memory(arr, arrIn, size, cudaMemcpyHostToDevice);
 		}
 	}
 
+	GPUMatrix(GPUMatrix& src) = delete;
+
+	GPUMatrix(GPUMatrix&& src) : GPUMatrix(){
+		arr = src.arr;
+		x = src.x;
+		y = src.y;
+		size = src.size;
+
+		src.arr = 0;
+		src.x = src.y = src.size = 0;
+	}
+
+	GPUMatrix(const AbstractMatrix<double>* src);
+
+
+//Copy
+	GPUMatrix copy() const{
+		double* temp = allocate_GPU_memory<double>(size);
+		copy_GPU_memory(temp, arr, size, cudaMemcpyDeviceToDevice);
+		return GPUMatrix(y, x, temp, GPU);
+	}
+
+	/**
+	 * @return a copy of the matrix stored in host memory
+	 */
+	double* copy_array_host() const override{
+		double* ptr = allocate_CPU_memory<double>(size);
+		copy_GPU_memory(ptr, arr, size, cudaMemcpyDeviceToHost);
+		return ptr;
+	}
+	/**
+	 * @return the matrix stored in CPU memory - warning this may be a direct refernce to the Matrices array
+	 */
+	const double* get_array_host() const override{
+		return copy_array_host();
+	}
+
+//Transfers
+	void transfer(GPUMatrix&& src){
+		x = src.x;
+		y = src.y;
+		size = src.size;
+		arr = src.arr;
+
+		src.arr = 0;
+		src.x = src.y = src.size = 0;
+	}
+	void transfer(GPUMatrix& src){
+		x = src.x;
+		y = src.y;
+		size = src.size;
+		arr = src.arr;
+
+		src.arr = 0;
+		src.x = src.y = src.size = 0;
+	}	
 
 	
 	double index(size_t Y, size_t X) const override {//Gets a value from the matrix indexed in both dimensions
 		double ret = 0;
-		cpy(&ret, &arr[getIndex(Y,X)], sizeof(double), cudaMemcpyDeviceToHost); //copy's the value from GPU memory to host memory
+		copy_GPU_memory(&ret, &arr[getIndex(Y,X)], 1, cudaMemcpyDeviceToHost);
+		//cpy(&ret, &arr[getIndex(Y,X)], sizeof(double), cudaMemcpyDeviceToHost); //copy's the value from GPU memory to host memory
 		return ret;
 	}
 	double index(size_t X) const override {//Gets a value from the matrix indexed By a single dimension 0 to Matrix size
 		double ret = 0;
-		cpy(&ret, &arr[X], sizeof(double), cudaMemcpyDeviceToHost); //copy's the value from GPU memory to host memory
+		copy_GPU_memory(&ret, &arr[X], 1, cudaMemcpyDeviceToHost); //copy's the value from GPU memory to host memory
 		return ret;
 	}
 
@@ -154,34 +204,34 @@ public:
 		transpose(C);
 		return C;
 	}
-	/**
-	 * @return a copy of the matrix on the same device
-	 */
-	GPUMatrix* copy() const override {
-		GPUMatrix* C = new GPUMatrix(y, x);
-		copy(C);
-		return C;
-	}
-	/**
-	 * @param a a copy of the matrix on the same device
-	 */
-	void copy(AbstractMatrix* m) const  override {
-		if(dynamic_cast<const GPUMatrix*>(m) == NULL){
-			ilog(ERROR, "Cannot copy NULL or GPUMatrix to non-GPUMatrix");
-		}
-		cpy(m->arr, arr, size * sizeof(double), cudaMemcpyKind::cudaMemcpyDeviceToDevice);
-		m->x = x;
-		m->y = y;
-	}
+	// /**
+	//  * @return a copy of the matrix on the same device
+	//  */
+	// GPUMatrix* copy() const override {
+	// 	GPUMatrix* C = new GPUMatrix(y, x);
+	// 	copy(C);
+	// 	return C;
+	// }
+	// /**
+	//  * @param a a copy of the matrix on the same device
+	//  */
+	// void copy(AbstractMatrix* m) const  override {
+	// 	if(dynamic_cast<const GPUMatrix*>(m) == NULL){
+	// 		ilog(ERROR, "Cannot copy NULL or GPUMatrix to non-GPUMatrix");
+	// 	}
+	// 	copy_GPU_memory(m->arr, arr, size, cudaMemcpyDeviceToDevice);
+	// 	m->x = x;
+	// 	m->y = y;
+	// }
 	
-	void copyToCPU(double* CPUPtr) const {
-		cpy(CPUPtr, arr, size * sizeof(double), cudaMemcpyKind::cudaMemcpyDeviceToHost);
-	}
-	double* copyToCPU() const {
-		double* CPUPtr = new double[size];// (double*)malloc(size*sizeof(double));
-		cpy(CPUPtr, arr, size * sizeof(double), cudaMemcpyKind::cudaMemcpyDeviceToHost);
-		return CPUPtr;
-	}
+	// void copyToCPU(double* CPUPtr) const {
+	// 	copy_GPU_memory(CPUPtr, arr, size, cudaMemcpyDeviceToHost);
+	// }
+	// double* copyToCPU() const {
+	// 	double* CPUPtr = new double[size];// (double*)malloc(size*sizeof(double));
+	// 	copy_GPU_memory(CPUPtr, arr, size, cudaMemcpyDeviceToHost);
+	// 	return CPUPtr;
+	// }
 
 	void print() const override;
 	void print(int resolution) const override { //print the matrix to the console with a defined number of digits
@@ -198,19 +248,19 @@ public:
 	}
 
 
-	/**
-	 * @return a copy of the matrix stored in CPU memory
-	 */
-	double* copy_to_CPU() const override{
-		return copyToCPU();
-	}
+	// /**
+	//  * @return a copy of the matrix stored in CPU memory
+	//  */
+	// double* copy_to_CPU() const override{
+	// 	return copyToCPU();
+	// }
 
-	/**
-	 * @return a copy of the matrix stored in CPU memory
-	 */
-	const double* get_CPU_pointer() const override{
-		return copyToCPU();
-	}
+	// /**
+	//  * @return a copy of the matrix stored in CPU memory
+	//  */
+	// const double* get_CPU_pointer() const override{
+	// 	return copyToCPU();
+	// }
 
 
 	void convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* out, int outY, int outX, int outZ, int convY, int convX, int convZ) override;

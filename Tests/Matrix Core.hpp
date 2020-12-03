@@ -56,8 +56,7 @@ namespace MatrixCoreTests{
         Matrix::forceUseCPU();
         Matrix i(4, 3);
         i.randomFill(-100, 100);
-        Matrix a(4, 3);
-        a.copyToThis(i);
+        Matrix a = i.copy();
         string s = Matrix::compare(i, a, -100, 100);
         if(s != ""){
             er(s);
@@ -71,8 +70,7 @@ namespace MatrixCoreTests{
         Matrix::forceUseGPU();
         Matrix i(4, 3);
         i.randomFill(-100, 100);
-        Matrix a(4, 3);
-        a.copyToThis(i);
+        Matrix a = i.copy();
         string s = Matrix::compare(i, a, -100, 100);
         if(s != ""){
             er(s);

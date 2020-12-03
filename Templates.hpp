@@ -39,13 +39,13 @@ public:
 	E* get_implementation_array() override { return arr; }
 	const E* get_implementation_array() const override { return arr; }
 	/**
-	 * @return a copy of the matrix stored in CPU memory
+	 * @return a copy of the matrix stored in host memory
 	 */
 	virtual E* copy_array_host() const = 0;
 	/**
-	 * @return the matrix stored in CPU memory - warning this may be a direct refernce to the Matrices array
+	 * @return the matrix stored in source host memory - warning this may be a direct refernce to the Matrices array
 	 */
-	virtual const E* get_array_from_host() const = 0;
+	virtual const E* get_array_host() const = 0;
 
 	virtual E index(size_t Y, size_t X) const = 0; //const indexing so consistent for GPU
 	virtual E index(size_t i) const = 0;

@@ -1,5 +1,6 @@
 #pragma once
 #include "Templates.hpp"
+#include "include/IO.hpp"
 
 
 /**
@@ -24,6 +25,8 @@ class AbstractTensor : public MLStruct<double>{
         set_implementation(x.get_implementation());
         x.set_implementation(nullptr);
     }
+
+    AbstractTensor (AbstractTensor & x) = delete;
 
     //Virtual functions
     virtual AbstractMatrix<double>* get_implementation() = 0;
@@ -121,14 +124,6 @@ class AbstractTensor : public MLStruct<double>{
     }
 	void randomFill(double lowerMin, double lowerMax, double upperMin, double upperMax) {
         get_implementation()->randomFill(lowerMin, lowerMax, upperMin, upperMax);
-    }
-
-    double* get_static_array() override {
-        return get_implementation()->get_static_array();
-    }
-
-    const double* get_static_array() const override {
-        return get_implementation()->get_static_array();
     }
 
     protected:
