@@ -7,8 +7,8 @@
 
 
 bool core(){
-    return MatrixCoreTests::Test_copyTest_cpu() &&
-    MatrixCoreTests::Test_copyTest_gpu() &&
+    return MatrixCoreTests::Test_copy_cpu() &&
+    MatrixCoreTests::Test_copy_gpu() &&
     MatrixCoreTests::Test_indeces_cpu() &&
     MatrixCoreTests::Test_indeces_gpu() &&
     MatrixCoreTests::Test_scale_cpu() &&
@@ -31,13 +31,15 @@ bool math(){
 }
 
 bool ff(){
-    Test_FF::simpleXOR();
+    Test_FF::simpleXOR_CPU();
+    Test_FF::simpleXOR_GPU();
     return true;
 }
 
 bool conv(){
     return TensorCoreTests::Test_tensor_copy() &&
-    TensorCoreTests::Test_tensor_conv();
+    TensorCoreTests::Test_tensor_conv_CPU() &&
+    TensorCoreTests::Test_tensor_conv_GPU();
 }
 
 

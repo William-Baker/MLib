@@ -7,7 +7,6 @@
 
 #include "Matrix Core.hpp"
 
-
 namespace MatrixMathTests{
     bool Test_trans()
     {
@@ -15,6 +14,7 @@ namespace MatrixMathTests{
         Matrix CA(4, 3);
         CA.randomFill(-10, 10);
     #ifdef DEBUG
+        std::cout << std::endl;
         CA.print();
         std::cout << std::endl;
     #endif
@@ -22,13 +22,14 @@ namespace MatrixMathTests{
     #ifdef DEBUG
         CC.print();
         std::cout << std::endl;
-        Matrix::forceUseGPU();
     #endif
+        Matrix::forceUseGPU();
         Matrix A = CA.copy();
         Matrix C = A.transposeNew();
     #ifdef DEBUG
         C.print();
     #endif
+        Matrix::forceUseCPU();
         string s = Matrix::compare(CC, C, -10, 10);
         if(s != ""){
             er(s);
@@ -44,6 +45,7 @@ namespace MatrixMathTests{
         Matrix B(5, 4);
         B.randomFill(0, 10);
     #ifdef DEBUG
+        std::cout << std::endl;
         A.print();
         std::cout << "\n\n";
         B.print();
@@ -309,6 +311,7 @@ namespace MatrixMathTests{
         CA.multiplyElementWise(CB, CC);
         //Matrix CC = CA.multiplyElementWise(CB);
     #ifdef DEBUG
+        std::cout << std::endl;
         CA.print();
         std::cout << std::endl;
         CB.print();
@@ -513,6 +516,7 @@ namespace MatrixMathTests{
         Matrix CA(4, 3);
         CA.randomFill(-10, 10);
     #ifdef DEBUG
+        std::cout << std::endl;
         CA.print();
         std::cout << std::endl;
     #endif

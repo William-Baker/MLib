@@ -51,7 +51,7 @@ namespace MatrixCoreTests{
     }
 
 
-    bool Test_copyTest_cpu()
+    bool Test_copy_cpu()
     {
         Matrix::forceUseCPU();
         Matrix i(4, 3);
@@ -65,12 +65,14 @@ namespace MatrixCoreTests{
         return true;
     }
 
-    bool Test_copyTest_gpu()
+    bool Test_copy_gpu()
     {
         Matrix::forceUseGPU();
         Matrix i(4, 3);
         i.randomFill(-100, 100);
+        
         Matrix a = i.copy();
+        
         string s = Matrix::compare(i, a, -100, 100);
         if(s != ""){
             er(s);

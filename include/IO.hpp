@@ -101,11 +101,11 @@ static T* allocate_GPU_memory(size_t count){
 
 template<typename T>
 static void copy_GPU_memory(T* dst, T* src, size_t count, cudaMemcpyKind kind){
-  auto err = cudaMemcpy(dst, src, count, kind);
+  auto err = cudaMemcpy(dst, src, count * sizeof(T), kind);
   if(err != cudaSuccess){
     int attempts = 0;
     while(err != cudaSuccess){
-      err = cudaMemcpy(dst, src, count, kind);
+      err = cudaMemcpy(dst, src, count * sizeof(T), kind);
       std::this_thread::sleep_for(std::chrono::milliseconds((int)(std::pow(2, attempts))));
       ilog(ERROR, "GPU memory copy failed" + std::string(cudaGetErrorString(err)));
     }

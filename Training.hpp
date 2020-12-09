@@ -149,66 +149,103 @@ class XOR : public DataSetProvider{
 
 };
 
+
+
 class TrainCases {
-	std::vector<MLCase> casesLive;
-	std::vector<MLCase> casesDead;
+	
+	public:
+
+	std::vector<MLCase> live_cases;
+	std::vector<MLCase> dead_cases;
 	MLCase current;
+
+	bool dead_storage = false;
+	double max_GPU_memory_usage;
+	bool using_gpu = false;
 
 	long size;
 	long ptr;
 	long livePtr;
+	inline long deadPtr(){return ptr-livePtr;}
+	inline void next_live(){ptr++; ptr%=size; livePtr++; livePtr%=live_cases.size();}
 
 	std::future<void> future;
 
-	TrainCases() {
+	/**
+	 * @param max_GPU_memory_usageIn percentage of allowable VRam usage
+	 */
+	TrainCases(double max_GPU_memory_usageIn) {
 		size = 0;
 		ptr = 0;
 		livePtr = 0;
-		
-		
+		max_GPU_memory_usage = max_GPU_memory_usageIn;
+		using_gpu = Matrix::checkGPU();
 	}
 
-	void load_case(MLCase mlCase) {
-		/*casesLive.resize(casesLive.size() + 1);
-		casesLive[casesLive.size() - 1] = mlCase;*/
-		casesLive.push_back(mlCase);
+	void load_case(MLCase this_case) {
+		if(dead_storage){
+			dead_cases.push_back(this_case);
+		}
+		else{
+			live_cases.push_back(this_case);
+		}
 		size++;
 	}
 
-	void load_case(MLStruct<double>* input, MLStruct<double>* output) {
-		MLCase trainingCase;
-		trainingCase.inputs = input;
-		trainingCase.outputs = output;
-		load_case(trainingCase);
-		
+	
+	/**
+	 * curerntly only 2D data structures are supported
+	 * dimensions are x, y, z, alpha, beta
+	 */
+	void load_data(double* data, std::vector<size_t> dim_data, double* label, std::vector<size_t> dim_label){
+		switchToCPUOnUsage(max_GPU_memory_usage);
+		AbstractMatrix<double>* data_matrix;
+		AbstractMatrix<double>* label_matrix;
+		if(using_gpu){
+			data_matrix = new GPUMatrix(dim_data[1], dim_data[0], data);
+			label_matrix = new GPUMatrix(dim_label[1], dim_label[0], label);
+		}
+		else {
+			data_matrix = new GPUMatrix(dim_data[1], dim_data[0], data);
+			label_matrix = new GPUMatrix(dim_label[1], dim_label[0], label);
+		}
+
+		load_case( MLCase(data_matrix, label_matrix) );
 	}
+
 	void load_dataset(std::string subfolder, MLStruct<double>* input, MLStruct<double>* output, double maxMemUsage) {
 		mnist::MNIST_dataset<std::vector, png::tRNS, uint8_t> dataset = mnist::read_dataset(subfolder, 0, 0); //read mnists data set folder with TODO: "filename" name
 		for(long index = 0; index < dataset.test_images.size(); index ++){
-			std::vector<uint8_t> test_image = dataset.test_images[index];
-			//std::vector<uint8_t> test_label = dataset.test_labels[index];
-			//auto test_label = dataset.test_labels[index];
-			Matrix* test_label = new Matrix(1,1);
-			test_label->setIndex(0, dataset.test_labels[index]);
-			Matrix* data = new Matrix((int)sqrt(test_image.size()), (int)sqrt(test_image.size()));
-			data->copyToThis(test_image.data());
-			MLCase* case_load = new MLCase(data->getStrategy(), test_label->getStrategy());
-			test_image.~vector();
-			switchToCPUOnUsage(maxMemUsage);
+			
+			//TODO move all this to a dedicated load case class taking an array, its dimensions and the label array + dimensions
+			// Matrix* test_label = new Matrix(1,1);					//Retrieve label and assign to matrix
+			// test_label->setIndex(0, dataset.test_labels[index]);
+			
+			// std::vector<uint8_t> & test_image = dataset.test_images[index]; //reference image in dataset
+			// size_t data_dimension = sqrt(test_image.size());
+			// Matrix* data = new Matrix(data_dimension, data_dimension, test_image.data());
+			
+			
+			// MLCase* case_load = new MLCase(data->getStrategy(), test_label->getStrategy());
+			// test_image.~vector();
+			//switchToCPUOnUsage(maxMemUsage);
 		}
 
 
 		Matrix::forceUseGPU();
 	}
+
+
+
+	public:
+	
+
+
 	void next_case() {
-		int oldLivePtr = ptr;
-		ptr++;
-		ptr %= size;
-		livePtr++;
-		livePtr %= casesLive.size();
-		if (casesDead.size()) {
-			future = std::async(std::launch::async, MLCase::swap, &casesLive[ptr - livePtr], &casesLive[oldLivePtr]);
+		if (dead_cases.size()) {
+			future = std::async(std::launch::async, MLCase::swap, &live_cases[ptr], &dead_cases[deadPtr()]);
 		}
+		next_live();
 	}
 
 	class ImageContainer {
@@ -232,9 +269,11 @@ private:
 		if (Matrix::checkGPU()) {
 			size_t free, used;
 			cudaMemGetInfo(&free, &used);
-			if (used / used + free > maxMemUsage) {
-				Matrix::forceUseCPU();
+			if (used / (used + free) > maxMemUsage) {
+				using_gpu = false;
+				dead_storage = true;
 			}
+			else using_gpu = true;//we may want to resume GPU usage
 		}
 	}
 };

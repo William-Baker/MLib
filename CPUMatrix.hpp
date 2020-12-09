@@ -345,28 +345,33 @@ This should rather use Transfer or else the copy constructor
 	// 	m->y = y;
 	// 	memcpy(m->arr, arr, size * sizeof(double));
 	// }
+	private:
+	void transpose(CPUMatrix* m){
+		for (size_t Y = 0; Y < y; Y++) {
+			for (size_t X = 0; X < x; X++) {
+				setIndex(Y, X, m->index(X, Y));
+			}
+		}
+	}
+	public:
 	
 	void transpose() override {
 		CPUMatrix m(copy());
 		x = m.y;
-		y = m.y;
-		for (size_t Y = 0; Y < y; Y++) {
-			for (size_t X = 0; X < x; X++) {
-				setIndex(X, Y, m.getIndex(Y, X));
-			}
-		}
+		y = m.x;
+		transpose(&m);
 	}
 	 CPUMatrix* transposeNew() override {
-		CPUMatrix* m = new CPUMatrix(copy());
-		m->transpose();
+		CPUMatrix* m = new CPUMatrix(x, y);
+		m->transpose(this);
 		return m;
 	}
 
 
 	void print() const override {
-		for (int c = 0; c < y; c++) {
+		for (size_t c = 0; c < y; c++) {
 			std::cout << index(c, 0);
-			for (int r = 1; r < x; r++) {
+			for (size_t r = 1; r < x; r++) {
 				std::cout << ",		" << index(c, r);
 			}
 			std::cout << std::endl;
@@ -432,13 +437,6 @@ This should rather use Transfer or else the copy constructor
 
 
 	private:
-		void transpose(CPUMatrix* B) {
-			for (size_t Y = 0; Y < y; Y++) {
-				for (size_t X = 0; X < x; X++) {
-					B->setIndex(X, Y, index(Y,X));
-				}
-			}
-		}
 		inline double tanh(double x) {
 			double ex = exp(x);
 			double nex = exp(-x);

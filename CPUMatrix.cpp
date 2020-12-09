@@ -17,6 +17,7 @@ CPUMatrix::CPUMatrix(const AbstractMatrix<double>* src) : CPUMatrix(){
 		x = actual->x;
 		y = actual->y;
 		size = actual->get_size();
+		arr = allocate_CPU_memory<double>(size);
 		copy_GPU_memory<double>(arr, actual->arr, size, cudaMemcpyKind::cudaMemcpyDeviceToHost);
 	}
 	else{
@@ -57,7 +58,7 @@ void CPUMatrix::randomFill(double lowerMin, double lowerMax, double upperMin, do
 		}
 	}
 }
-//TODO remove unactivated output
+//TODO remove unactivated output - i think it already has been?
 void CPUMatrix::convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* out, int outY, int outX, int outZ, int convY, int convX, int convZ) {
 	for (int oZ = 0; oZ < outZ; oZ++) {
 		for (int oX = 0; oX < outX; oX++) {

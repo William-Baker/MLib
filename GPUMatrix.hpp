@@ -42,7 +42,7 @@ public:
 	 * @param arr existing array to use, assumed of size Y*X
 	 * @param array_location the Memory type the pointer is pointing to, CPU/GPU/...
 	 */
-	GPUMatrix(size_t Y, size_t X, double* arrIn, MEM array_location) : GPUMatrix() {
+	GPUMatrix(size_t Y, size_t X, double* arrIn, MEM array_location = CPU) : GPUMatrix() {
 		y = Y;
 		x = X;
 		size = x * y;

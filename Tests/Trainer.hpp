@@ -1,0 +1,3 @@
+#include "../Training.hpp"
+
+bool

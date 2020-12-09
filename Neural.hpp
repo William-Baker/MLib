@@ -327,8 +327,8 @@ public:
 		allocate();
 	}
 
-
-	ConvLayer& operator=(ConvLayer& m) {
+	ConvLayer(ConvLayer& m) = delete;
+/* 	ConvLayer(ConvLayer&& m) {
 		//TODO Check if nextLayer and prevLayer get moved
 
 		this->layer = std::move(m.layer);
@@ -363,10 +363,7 @@ public:
 		this->convX = m.convX;
 		this->convY = m.convY;
 
-		
-
-		return *this;
-	}
+	} */
 
 
 
@@ -692,52 +689,44 @@ public:
 		outputs = out;
 	}
 
-	static void swap(MLCase* left, MLCase* right) {
-		try
-		{
-			GPUMatrix* GPUInputs = dynamic_cast<GPUMatrix*>(left->inputs);
-			GPUMatrix* GPUOutputs = dynamic_cast<GPUMatrix*>(left->outputs);
-			CPUMatrix* CPUInputs = dynamic_cast<CPUMatrix*>(right->inputs);
-			CPUMatrix* CPUOutputs = dynamic_cast<CPUMatrix*>(right->outputs);
-			swapMatrix(GPUInputs, CPUInputs);
-			swapMatrix(GPUOutputs, CPUInputs);
-
-			//left GPU, right CPU
+	/**
+	 * swaps a GPU case with a CPU case
+	 * @param gpu an MLCase stored on the GPU
+	 * @param cpu an MLCase stored on the CPU
+	 */
+	static void swap(MLCase* gpu, MLCase* cpu) {
+		if(dynamic_cast<GPUMatrix*>(gpu->inputs)){
+			auto new_pair = swapMatrix(dynamic_cast<GPUMatrix*>(gpu->inputs), dynamic_cast<CPUMatrix*>(cpu->inputs));
+			gpu->inputs = new_pair.first;
+			cpu->inputs = new_pair.second;
+			new_pair = swapMatrix(dynamic_cast<GPUMatrix*>(gpu->outputs), dynamic_cast<CPUMatrix*>(cpu->outputs));
+			gpu->outputs = new_pair.first;
+			cpu->outputs = new_pair.second;
 		}
-		catch (const std::exception&)
-		{
-			try {
-				CPUMatrix* CPUInputs = dynamic_cast<CPUMatrix*>(left->inputs);
-				CPUMatrix* CPUOutputs = dynamic_cast<CPUMatrix*>(left->outputs);
-				GPUMatrix* GPUInputs = dynamic_cast<GPUMatrix*>(right->inputs);
-				GPUMatrix* GPUOutputs = dynamic_cast<GPUMatrix*>(right->outputs);
-				swapMatrix(GPUInputs, CPUInputs);
-				swapMatrix(GPUOutputs, CPUInputs);
-				
-				//left CPU, right GPU
-			}
-			catch (const std::exception&) {
-				//Both Same
-				std::swap(left->inputs, right->inputs);
-				std::swap(left->outputs, right->outputs);
-
-			}
+		else{
+			throw(std::invalid_argument("gpu case not a GPU matrix"));
 		}
-		std::cout << "unknown MLStruct" << std::endl;
 	}
+
+
+
 private:
-	static void swapMatrix(GPUMatrix* g, CPUMatrix* c) {
+
+	static std::pair<GPUMatrix*, CPUMatrix*> swapMatrix(GPUMatrix* g, CPUMatrix* c) {
 		std::lock_guard<std::mutex> lock(resMutex);
-		CPUMatrix* CPUInputsTemp = new CPUMatrix(static_cast<AbstractMatrix<double>*>(g));
+		if(g || c == 0) throw(std::invalid_argument("null pointer arguments"));
+
+		CPUMatrix* CPUInputsTemp = new CPUMatrix(g);
 		g->~GPUMatrix();
 
-		g = new GPUMatrix(static_cast<AbstractMatrix<double>*>(c));
+		g = new GPUMatrix(c);
 
 		c->~CPUMatrix();
 
 		c = CPUInputsTemp;
-	}
 
+		return {g, c};
+	}
 
 };
 
