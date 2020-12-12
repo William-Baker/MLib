@@ -1,11 +1,11 @@
 #pragma once
 
-
 #include <cuda_runtime.h>
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
 
-//TODO remember all the XD's switched to YD's
+
+
 __device__ __forceinline__ long Index(int y, int x, int YD)
 {
 	return x * YD + y;
