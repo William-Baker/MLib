@@ -2,19 +2,31 @@
 #include "Matrix.hpp"
 #include <future>
 
+
+
+
+
+
 class Layer {
 public:
-	Layer* nextLayer = 0;
-	Layer* prevLayer = 0;
+	Layer* nextLayer;
+	Layer* prevLayer;
 	enum LayerType
 	{
 		FF,
 		CV,
 		REC,
-		INPUT
+		INPUT,
+		OUTPUT
 	};
 	LayerType type;
 	
+	Layer(LayerType typeIn){
+		type = typeIn;
+		nextLayer = 0;
+		prevLayer = 0;
+	}
+
 	virtual void compute() = 0;
 	virtual void backprop(double LR) = 0;
 	virtual void backprop(MLStruct<double>* err, double LR) = 0;
@@ -40,40 +52,39 @@ class InputLayer : public Layer {
 public:
 	MLStruct<double>* output;
 
-	InputLayer& operator=(InputLayer& m) {
-		std::swap(this->output, m.output);
-		std::swap(this->nextLayer, m.nextLayer);
-		std::swap(this->prevLayer, m.prevLayer);
-		std::swap(this->type, m.type);
-		return *this;
+	// InputLayer& operator=(InputLayer& m) {
+	// 	std::swap(this->output, m.output);
+	// 	std::swap(this->nextLayer, m.nextLayer);
+	// 	std::swap(this->prevLayer, m.prevLayer);
+	// 	std::swap(this->type, m.type);
+	// 	return *this;
+	// }
+
+	InputLayer() : Layer(INPUT){
 	}
 
-	void common() {
-		type = Layer::LayerType::INPUT;
-		prevLayer = 0;
-		nextLayer = 0;
-	}
-
-	InputLayer() {
-
-	}
-
-	InputLayer(Matrix* output) {
+	InputLayer(Matrix* output) : InputLayer() {
 		this->output = (MLStruct<double>*)output;
 	}
 
-	InputLayer(MLStruct<double>* output) {
+	InputLayer(MLStruct<double>* output) : InputLayer() {
 		this->output = output;
 	}
 
+	/**
+	 * Just passes the computation forward to the next element
+	 */
 	void compute() override {
 		if (nextLayer) {
 			nextLayer->compute();
 		}
 	}
 
+	/**
+	 * Just passes the computation forward to the next element, without modifying the input
+	 */
 	void compute(MLStruct<double>* input) {
-		output = input;
+		output = input; //Set the output as the input directly as this layer does nothing
 		if (nextLayer) {
 			nextLayer->compute();
 		}
@@ -92,7 +103,7 @@ public:
 	}
 
 	MLStruct<double>* getInputError() override {
-		return 0;
+		return nullptr;
 	}
 
 	MLStruct<double>* getOutput() override {
@@ -104,6 +115,112 @@ public:
 		output->print();
 	}
 };
+
+class OutputLayer : public Layer{
+	OutputLayer() : Layer(OUTPUT){
+	
+	}
+
+	virtual void compute_error(MLStruct<double>* target) = 0;
+
+	void compute() override {
+	}
+
+	void compute(MLStruct<double>* input) {
+	}
+
+	/**
+	 * Pass backprop to previous element without modification
+	 */
+	void backprop(MLStruct<double>* err, double LR) override {
+		prevLayer->backprop(err, LR);
+	}
+
+	/**
+	 * Pass backprop to previous element without modification
+	 */
+	void backprop(double LR) override {
+		prevLayer->backprop(LR);
+	}
+
+
+	void randomise() override {
+		return;
+	}
+
+	MLStruct<double>* getOutput() override {
+		return prevLayer->getOutput();
+	}
+}
+
+class ErrorHalfSquared : OutputLayer{
+	
+}
+
+// class ErrorFunction {
+// public:
+// 	virtual double Error(double classification, double target) = 0;
+// 	virtual void Error(Matrix& classification, Matrix& target, Matrix& C) = 0;
+// 	virtual double gradient(double classification, double target) = 0;
+// 	virtual void gradient(Matrix& classification, Matrix& target, Matrix& C) = 0;
+// };
+// class ErrorHalfSquared : public ErrorFunction {
+// 	Matrix temp1;
+// 	Matrix temp2;
+// 	bool used = false;
+// 	double Error(double classification, double target) override {
+// 		return (0.5 * ((classification - target) * (classification - target)));
+// 	}
+// 	void Error(Matrix& classification, Matrix& target, Matrix& C) override{
+// 		if(!used || (classification.width() != temp1.width() || classification.height() != temp1.height())){
+// 			temp1 = Matrix(classification.height(),classification.width());
+// 			temp2 = Matrix(classification.height(),classification.width());
+// 			used = true;
+// 		}
+// 		classification.subtract(target,temp1 );
+// 		classification.subtract(target, temp2 );
+// 		temp1.multiplyElementWise(temp2, C);
+// 		C.scale(0.5, C);
+
+// 	}
+// 	double gradient(double classification, double target) override {
+// 		return target - classification;
+// 	}
+// 	void gradient(Matrix& classification, Matrix& target, Matrix& C) override {
+// 		target.subtract(classification, C);
+		
+// 	}
+// };
+// class ErrorAsym : public ErrorFunction {
+// 	Matrix x;
+// 	Matrix neg;
+// 	Matrix op;
+// 	bool used = false;
+// 	double Error(double classification, double target) override {
+// 		return (0.5 * ((target - classification) * (target - classification)));
+// 	}
+// 	double gradient(double classification, double target) override {
+// 		double x = target - classification;
+// 		return x / (1.1 - x);
+// 	}
+
+
+
+
+
+// 	void gradient(Matrix& classification, Matrix& target, Matrix& C) override {
+// 		if(!used || (classification.width() != x.width() || classification.height() != x.height())){
+// 			x = Matrix(classification.height(),classification.width());
+// 			neg = Matrix(classification.height(),classification.width());
+// 			op = Matrix(classification.height(),classification.width());
+// 			used = true;
+// 		}
+// 		target.subtract(classification, x);
+// 		x.scale(-1, neg);
+// 		neg.addConst(1.1, op);
+// 		x.divideElementWise(op, C);
+// 	}
+// };
 
 class FeedForwardLayer : public Layer {
 public:
@@ -155,6 +272,7 @@ public:
 		gradient = Matrix(outputs, 1);
 		this->prevLayer = prevLayer;
 		setPrevLayer(prevLayer);
+		
 		
 	}
 
@@ -208,6 +326,11 @@ public:
 		Matrix tmp(input, false);
 		compute(tmp);
 	}
+
+	MLStruct<double> computeOutputError(MLStruct<double> target){
+		err->gradient(finalLayer()->output, target, outError);
+	}
+	
 
 	void calculateErrorSignal(Matrix& outputError) {
 		weights.multiplyA(outputError, errorSig);
@@ -396,7 +519,8 @@ public:
 		compute(prevLayer->getOutput());
 	}
 	void compute(MLStruct<double>* input){
-		compute(input);
+		Matrix i(input, false); //A temporary wrapper set no to deconstruct it's implementation
+		compute(i);
 	}
 
 	void backprop(Matrix &outError, double LR) {
@@ -467,70 +591,7 @@ private:
 };
 
 
-class ErrorFunction {
-public:
-	virtual double Error(double classification, double target) = 0;
-	virtual void Error(Matrix& classification, Matrix& target, Matrix& C) = 0;
-	virtual double gradient(double classification, double target) = 0;
-	virtual void gradient(Matrix& classification, Matrix& target, Matrix& C) = 0;
-};
-class ErrorHalfSquared : public ErrorFunction {
-	Matrix temp1;
-	Matrix temp2;
-	bool used = false;
-	double Error(double classification, double target) override {
-		return (0.5 * ((classification - target) * (classification - target)));
-	}
-	void Error(Matrix& classification, Matrix& target, Matrix& C) override{
-		if(!used || (classification.width() != temp1.width() || classification.height() != temp1.height())){
-			temp1 = Matrix(classification.height(),classification.width());
-			temp2 = Matrix(classification.height(),classification.width());
-			used = true;
-		}
-		classification.subtract(target,temp1 );
-		classification.subtract(target, temp2 );
-		temp1.multiplyElementWise(temp2, C);
-		C.scale(0.5, C);
 
-	}
-	double gradient(double classification, double target) override {
-		return target - classification;
-	}
-	void gradient(Matrix& classification, Matrix& target, Matrix& C) override {
-		target.subtract(classification, C);
-		
-	}
-};
-class ErrorAsym : public ErrorFunction {
-	Matrix x;
-	Matrix neg;
-	Matrix op;
-	bool used = false;
-	double Error(double classification, double target) override {
-		return (0.5 * ((target - classification) * (target - classification)));
-	}
-	double gradient(double classification, double target) override {
-		double x = target - classification;
-		return x / (1.1 - x);
-	}
-
-
-
-
-
-	void gradient(Matrix& classification, Matrix& target, Matrix& C) override {
-		if(!used || (classification.width() != x.width() || classification.height() != x.height())){
-			x = Matrix(classification.height(),classification.width());
-			neg = Matrix(classification.height(),classification.width());
-			op = Matrix(classification.height(),classification.width());
-			used = true;
-		}
-		target.subtract(classification, x);
-		x.scale(-1, neg);
-		neg.addConst(1.1, op);
-		x.divideElementWise(op, C);
-	}
-};
 
 
 class NeuralNetworkFF {
@@ -644,6 +705,7 @@ public:
 	}
 
 	/**
+	 * TODO refactor for generic
 	 * @param target a Matrix of target values, of equal dimension to the output
 	 * @return the performance of the network 0-1
 	 */
@@ -680,9 +742,18 @@ class MLCase {
 public:
 	MLStruct<double>* inputs;
 	MLStruct<double>* outputs;
-	static std::mutex resMutex;
+	//std::mutex resMutex;
+
+	//TODO add mutex to MLCase
 
 	MLCase(){};
+
+	/**
+	 * Overriden copy constructor as resMutex has no copy constructor
+	 */
+	// MLCase(MLCase& x){
+
+	// }
 
 	MLCase(MLStruct<double>* in, MLStruct<double>* out){
 		inputs = in;
@@ -696,6 +767,9 @@ public:
 	 */
 	static void swap(MLCase* gpu, MLCase* cpu) {
 		if(dynamic_cast<GPUMatrix*>(gpu->inputs)){
+			//std::lock_guard<std::mutex> lockg(gpu->resMutex);
+			//std::lock_guard<std::mutex> lockc(cpu->resMutex);
+			
 			auto new_pair = swapMatrix(dynamic_cast<GPUMatrix*>(gpu->inputs), dynamic_cast<CPUMatrix*>(cpu->inputs));
 			gpu->inputs = new_pair.first;
 			cpu->inputs = new_pair.second;
@@ -713,7 +787,7 @@ public:
 private:
 
 	static std::pair<GPUMatrix*, CPUMatrix*> swapMatrix(GPUMatrix* g, CPUMatrix* c) {
-		std::lock_guard<std::mutex> lock(resMutex);
+		
 		if(g || c == 0) throw(std::invalid_argument("null pointer arguments"));
 
 		CPUMatrix* CPUInputsTemp = new CPUMatrix(g);

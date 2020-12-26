@@ -15,7 +15,6 @@
 
 class DataSetProvider{
 	public:
-	virtual void initialise(std::string file_path) = 0;
 	virtual MLCase get_next_case() = 0;
 	virtual MLCase get_current_case() = 0;
 	virtual void randomise_positions() = 0;
@@ -68,7 +67,7 @@ class XOR : public DataSetProvider{
 	size_t ptr = 0;
 	
 
-	void initialise(std::string file_path) override{
+	XOR(){
 		Matrix* oo_i = new Matrix(2,1);
 		oo_i->setIndex(0,0.1);
 		oo_i->setIndex(1,0.1);
@@ -151,13 +150,18 @@ class XOR : public DataSetProvider{
 
 
 
-class TrainCases {
+/**
+ * Stores data for training
+ * Only stores either training or test data
+ * Traning/Test is chosen accoridng to the data source
+ * e.g. load_dataset
+ */
+class TrainCases : public DataSetProvider {
 	
 	public:
 
 	std::vector<MLCase> live_cases;
 	std::vector<MLCase> dead_cases;
-	MLCase current;
 
 	bool dead_storage = false;
 	double max_GPU_memory_usage;
@@ -196,8 +200,12 @@ class TrainCases {
 	/**
 	 * curerntly only 2D data structures are supported
 	 * dimensions are x, y, z, alpha, beta
+	 * @param data pointer to the data
+	 * @param dim_data dimensions of the data x,y,z,A,B
+	 * @param labal the label data
+	 * @param dim_label dimensions of the label x,y,z,A,B
 	 */
-	void load_data(double* data, std::vector<size_t> dim_data, double* label, std::vector<size_t> dim_label){
+	void load_data(double* data, const std::vector<size_t> &dim_data, double* label, const std::vector<size_t> &dim_label){
 		switchToCPUOnUsage(max_GPU_memory_usage);
 		AbstractMatrix<double>* data_matrix;
 		AbstractMatrix<double>* label_matrix;
@@ -213,26 +221,44 @@ class TrainCases {
 		load_case( MLCase(data_matrix, label_matrix) );
 	}
 
-	void load_dataset(std::string subfolder, MLStruct<double>* input, MLStruct<double>* output, double maxMemUsage) {
-		mnist::MNIST_dataset<std::vector, png::tRNS, uint8_t> dataset = mnist::read_dataset(subfolder, 0, 0); //read mnists data set folder with TODO: "filename" name
-		for(long index = 0; index < dataset.test_images.size(); index ++){
-			
-			//TODO move all this to a dedicated load case class taking an array, its dimensions and the label array + dimensions
-			// Matrix* test_label = new Matrix(1,1);					//Retrieve label and assign to matrix
-			// test_label->setIndex(0, dataset.test_labels[index]);
-			
-			// std::vector<uint8_t> & test_image = dataset.test_images[index]; //reference image in dataset
-			// size_t data_dimension = sqrt(test_image.size());
-			// Matrix* data = new Matrix(data_dimension, data_dimension, test_image.data());
-			
-			
-			// MLCase* case_load = new MLCase(data->getStrategy(), test_label->getStrategy());
-			// test_image.~vector();
-			//switchToCPUOnUsage(maxMemUsage);
+	/**
+	 * curerntly only 2D data structures are supported
+	 * dimensions are x, y, z, alpha, beta
+	 * DEPENDENCY - load_data
+	 * @param data collection of data arrays
+	 * @param dim_data dimensions of the data x,y,z,A,B
+	 * @param labal collection of label arrays
+	 * @param dim_label dimensions of the label x,y,z,A,B
+	 */
+	template<typename TwoDCollection, typename ZeroDdatatype> void load_dataset(std::vector<TwoDCollection> &data, const std::vector<size_t> dim_data, std::vector<ZeroDdatatype> &labels){
+		for(auto i = 0; i < data.size(); i++){
+			double label = labels[i];
+			std::vector<double> data_dbl(data[0].begin(), data[0].end());
+			load_data(data_dbl.data(), dim_data, &label, {1,1});
 		}
+	}
 
-
-		Matrix::forceUseGPU();
+	/**
+	 * Loads an mnist dataset with png data and byte labels
+	 */
+	void load_dataset_png_byte(std::string subfolder, bool load_train_not_test_data) {
+		mnist::MNIST_dataset<std::vector, png::tRNS, uint8_t> dataset = mnist::read_dataset(subfolder, 0, 0); //read mnists data set folder with TODO: "filename" name
+		if(load_train_not_test_data){
+			if(dataset.training_images.size() == 0){
+				ilog(WARNING, "dataset: \"" + subfolder + "\" was empty");
+				return;
+			}
+			const size_t image_xy = std::sqrt(dataset.training_images[0].size());
+			load_dataset(dataset.training_images, {image_xy, image_xy},  dataset.training_labels);	
+		}
+		else{
+			if(dataset.test_images.size() == 0){
+				ilog(WARNING, "dataset: \"" + subfolder + "\" was empty");
+				return;
+			}
+			const size_t image_xy = std::sqrt(dataset.test_images[0].size());
+			load_dataset(dataset.test_images, {image_xy, image_xy},  dataset.test_labels);	
+		}
 	}
 
 
@@ -241,11 +267,24 @@ class TrainCases {
 	
 
 
-	void next_case() {
+	MLCase get_next_case() override {
 		if (dead_cases.size()) {
 			future = std::async(std::launch::async, MLCase::swap, &live_cases[ptr], &dead_cases[deadPtr()]);
 		}
 		next_live();
+		return live_cases[livePtr];
+	}
+
+	MLCase get_current_case() override {
+		return live_cases[livePtr];
+	}
+
+	void randomise_positions() override{
+		//TODO
+	}
+
+	size_t get_size(){
+		return size;
 	}
 
 	class ImageContainer {

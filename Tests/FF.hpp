@@ -9,7 +9,6 @@ namespace Test_FF{
     bool simpleXOR_CPU(){
 		Matrix::forceUseCPU();
 		XOR dataset;
-		dataset.initialise("");
 
 		NeuralNetwork NN(new ErrorHalfSquared);
 		NN.addLayer(new FeedForwardLayer(2,2,NULL));
@@ -26,7 +25,6 @@ namespace Test_FF{
 	bool simpleXOR_GPU(){
 		Matrix::forceUseGPU();
 		XOR dataset;
-		dataset.initialise("");
 
 		NeuralNetwork NN(new ErrorHalfSquared);
 		NN.addLayer(new FeedForwardLayer(2,2,NULL));

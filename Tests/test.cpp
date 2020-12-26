@@ -4,6 +4,7 @@
 #include "Matrix Math.hpp"
 #include "Conv.hpp"
 #include "FF.hpp"
+#include "Trainer.hpp"
 
 
 bool core(){
@@ -42,21 +43,25 @@ bool conv(){
     TensorCoreTests::Test_tensor_conv_GPU();
 }
 
-
+bool MNIST(){
+    return MNIST_conv();
+}
 
 int main(){
    
     struct Option{
-        char c;
+        std::string c;
         std::string desc;
         decltype(core)* l;
     };
     std::vector<Option> charLambda;
-    charLambda.push_back({'c', "core tests", &core});
-    charLambda.push_back({'m', "math tests", &math});
-    charLambda.push_back({'v', "conv tests", &conv});
-    charLambda.push_back({'f', "feed foward", &ff});
-    charLambda.push_back({'v', "conv tests", &conv});
+    charLambda.push_back({"c", "core tests", &core});
+    charLambda.push_back({"m", "math tests", &math});
+    charLambda.push_back({"v", "conv tests", &conv});
+    charLambda.push_back({"f", "feed foward", &ff});
+    charLambda.push_back({"v", "conv tests", &conv});
+    charLambda.push_back({"mn", "mnist tests", &MNIST});
+
 
 
 
@@ -77,7 +82,7 @@ int main(){
     try
     {
         for(auto e : charLambda){
-            if((x[0] == 'a') ||  (x[0] == e.c)){
+            if((x == "a") ||  (x == e.c)){
                 tests ++;
                 std::cout << "\nExecuting test: " << e.desc << std::endl;
                 

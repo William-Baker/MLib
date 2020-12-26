@@ -469,7 +469,6 @@ namespace Test {
 
 	void simpleXOR(){
 		XOR dataset;
-		dataset.initialise("");
 
 		NeuralNetwork NN(new ErrorHalfSquared);
 		NN.addLayer(new FeedForwardLayer(2,2,NULL));
@@ -548,7 +547,6 @@ namespace Test {
 		Timer::start();
 
 		XOR d;
-		d.initialise("");
 		while (true) 
 		{
 			//Timer::start();
