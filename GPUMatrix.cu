@@ -296,7 +296,7 @@ void GPUMatrix::convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractM
 
 }
 
-void GPUMatrix::convBackprop(AbstractMatrix* in, AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* out_error, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR){	//prevError->fill(0);
+void GPUMatrix::convBackprop(AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* out_error, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR){	//prevError->fill(0);
 	cudaMemset2DAsync(prevError->arr, sizeof(double), 0, prevError->x, prevError->y);
 	//cudaDeviceSynchronize();
 	//Matrix gradient(net->y, net->x);

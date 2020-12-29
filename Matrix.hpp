@@ -465,8 +465,11 @@ public:
 	void convolute(Matrix &layer, Matrix &bias, Matrix &out,  int outY, int outX, int outZ, int convY, int convX, int convZ) {
 		m->convolute(layer.m, bias.m, out.m, outY, outX, outZ, convY, convX, convZ);
 	}
-	void convBackprop(Matrix& in, Matrix& layer, Matrix& this_layer_conv_error, Matrix& prevError, Matrix& bias, Matrix& out, Matrix& out_error, Matrix& gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
-		m->convBackprop(in.m, layer.m, this_layer_conv_error.m, prevError.m, bias.m, out.m, out_error.m , gradient.m, outY, outX, outZ, convY, convX, convZ, LR);
+	/**
+	 * Called iun contex of input matrix
+	 */
+	void convBackprop(Matrix& layer, Matrix& this_layer_conv_error, Matrix& prevError, Matrix& bias, Matrix& out, Matrix& out_error, Matrix& gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
+		m->convBackprop(layer.m, this_layer_conv_error.m, prevError.m, bias.m, out.m, out_error.m , gradient.m, outY, outX, outZ, convY, convX, convZ, LR);
 	}
 
 	void randomFill(double min, double max) { m->randomFill(min, max); }

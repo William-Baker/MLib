@@ -111,3 +111,6 @@ static void copy_GPU_memory(T* dst, T* src, size_t count, cudaMemcpyKind kind){
     }
   }
 }
+
+
+void write_image_to_file(uint8_t* arr, int x, int y, int d);

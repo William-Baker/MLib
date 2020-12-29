@@ -52,7 +52,7 @@ class Trainer{
 				performance_tally += NN->backprop(tmp, LR);
 			}
 			current_performance = performance_tally / batch_size;
-			//std::cout << "Current performance: " << current_performance << std::endl;
+			std::cout << "Current performance: " << current_performance << std::endl;
 			data->randomise_positions();
 			//NN->print();
 		}
@@ -327,69 +327,3 @@ class TrestManager{
     }
 };
 
-/**
- * @param arr the array of data to write to an imaghe
- * @param x horzontal bits
- * @param y vertical bits
- * @param d the number of bits per pixel
- */
-void imageOut(uint8_t* arr, int x, int y, int d){
-	
-    static int id = 0;
-	class ImageWriteJob{
-		public:
-		uint8_t* arr;
-		int x;
-		int y;
-		int d;
-		ImageWriteJob(uint8_t* a, int xp, int yp, int dp){
-			arr = a;
-			x = xp;
-			y = yp;
-			d = dp;
-		}
-		static int write(ImageWriteJob* job, void* user){
-			int id = *(int*)user;
-			if(job->d == 24){
-				long i = 0;
-				png::image< png::rgb_pixel > image(job->x, job->y);
-				for (png::uint_32 y = 0; y < image.get_height(); ++y)
-				{
-					for (png::uint_32 x = 0; x < image.get_width(); ++x)
-					{
-						image[y][x] = png::rgb_pixel(job->arr[i], job->arr[i+1], job->arr[i+2]);
-						i += 3;
-					}
-				}
-				image.write(std::to_string(id) + (std::string)".png");
-			}
-			else{
-				double i = 0;
-				png::image< png::rgb_pixel > image(job->x, job->y);
-				for (png::uint_32 y = 0; y < image.get_height(); ++y)
-				{
-					for (png::uint_32 x = 0; x < image.get_width(); ++x)
-					{
-						i += job->d / 8;
-						long index = std::floor(i);
-						uint64_t val = ((uint64_t*)(job->arr))[index];
-						val = val >> (int)std::floor((i-index)*8);
-						val = val & ((int)pow(2,job->d))-1;
-						double pixel = (val * 255) /pow(2, job->d);//compress the dynamic range of d bits to 8 bit and gray scale across spectrum
-						image[y][x] = png::rgb_pixel(pixel, pixel, pixel); 
-					}
-				}
-				image.write(std::to_string(id) + (std::string)".png");
-			}
-			return 0;
-
-			
-		}
-	};
-	static AsyncJob<ImageWriteJob> imageWriter(ImageWriteJob::write, &id);
-	imageWriter.addJob(new ImageWriteJob(arr, x, y, d));
-    
-    
-
-    id++;
-}

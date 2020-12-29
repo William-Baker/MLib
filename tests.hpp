@@ -470,7 +470,7 @@ namespace Test {
 	void simpleXOR(){
 		XOR dataset;
 
-		NeuralNetwork NN(new ErrorHalfSquared);
+		NeuralNetwork NN(NeuralNetwork::ErrorHalfSquared);
 		NN.addLayer(new FeedForwardLayer(2,2,NULL));
 		NN.addLayer(new FeedForwardLayer(2,1,NULL));
 
@@ -513,7 +513,6 @@ namespace Test {
 		zzo.setIndex(0, 0);
 
 		Matrix outError = Matrix(1, 1);
-		ErrorFunction* err = new ErrorHalfSquared;
 
 		std::vector<size_t> layers = std::vector<size_t>();// = std::vector<size_t>({ 2,2,2,1 });
 		layers.resize(3);
@@ -527,18 +526,23 @@ namespace Test {
 		layers[3] = 1024;
 		layers[4] = 1;*/
 		//layers[5] = 1;
-		NeuralNetworkFF NN = NeuralNetworkFF(layers);
+		NeuralNetwork NN = NeuralNetwork(NeuralNetwork::ErrorHalfSquared);
+		auto f = new FeedForwardLayer(2,2,nullptr);
+		auto s = new FeedForwardLayer(2,1,nullptr);
+		NN.addLayer(f);
+		NN.addLayer(s);
+
 		
-		NN.layers[0]->weights.setIndex(0, 0.45);
-		NN.layers[0]->weights.setIndex(1, 0.2);
-		NN.layers[0]->weights.setIndex(2, -0.6);
-		NN.layers[0]->weights.setIndex(3, 0.8);
-		NN.layers[0]->biases.setIndex(0, 0.2);
-		NN.layers[0]->biases.setIndex(1, 0.7);
+		f->weights.setIndex(0, 0.45);
+		f->weights.setIndex(1, 0.2);
+		f->weights.setIndex(2, -0.6);
+		f->weights.setIndex(3, 0.8);
+		f->biases.setIndex(0, 0.2);
+		f->biases.setIndex(1, 0.7);
 					
-		NN.layers[1]->weights.setIndex(0, 0.2);
-		NN.layers[1]->weights.setIndex(1, -0.8);
-		NN.layers[1]->biases.setIndex(0, 0.3);
+		s->weights.setIndex(0, 0.2);
+		s->weights.setIndex(1, -0.8);
+		s->biases.setIndex(0, 0.3);
 
 		
 		int counter = 0;
@@ -577,32 +581,32 @@ namespace Test {
 			NN.compute(cas.inputs);
 			//std::cout << "Compute: " << Timer::time();
 			//NN.finalLayer().output.print();
-			if (NN.finalLayer()->output.index(0) > 0.99) counter++;
+			if (NN.get_output().index(0) > 0.99) counter++;
 			//Timer::start();
 			Matrix tmp(cas.outputs, false);
-			NN.backprop(tmp, outError,err);
+			NN.backprop(tmp);
 			//std::cout << "Backprop: " << Timer::time();
 
 			cas = d.get_next_case();
 			NN.compute(cas.inputs);
 			////NN.finalLayer().output.print();
 			tmp = Matrix(cas.outputs, false);
-			if (NN.finalLayer()->output.index(0) > 0.99) counter++;
-			NN.backprop(tmp, outError,err);
+			if (NN.get_output().index(0) > 0.99) counter++;
+			NN.backprop(tmp);
 
 			cas = d.get_next_case();
 			NN.compute(cas.inputs);
 			////NN.finalLayer().output.print();
 			tmp = Matrix(cas.outputs, false);
-			if (NN.finalLayer()->output.index(0) < 0.01) counter++;
-			NN.backprop(tmp, outError,err);
+			if (NN.get_output().index(0) < 0.01) counter++;
+			NN.backprop(tmp);
 			
 			cas = d.get_next_case();
 			NN.compute(cas.inputs);
 			////NN.finalLayer().output.print();
 			tmp = Matrix(cas.outputs, false);
-			if (NN.finalLayer()->output.index(0) < 0.01) counter++;
-			NN.backprop(tmp, outError,err);
+			if (NN.get_output().index(0) < 0.01) counter++;
+			NN.backprop(tmp);
 			
 
 			if (counter == 4) {
@@ -629,9 +633,7 @@ namespace Test {
 		ConvLayer layer1(2,2,1,1,2,2,NULL);
 		//NeuralNetwork* NN = new NeuralNetwork();
 
-		ErrorHalfSquared err;
-
-		NeuralNetwork NN(&err);
+		NeuralNetwork NN(NeuralNetwork::ErrorHalfSquared);
 		
 		NN.addLayer(&layer0);
 		NN.addLayer(&layer1);
@@ -680,8 +682,8 @@ namespace Test {
 		ConvLayer layer0(d, d, 2, 1, d-1, d-1, NULL);
 		ConvLayer layer1(2, 2, 1, 1, 2, 2, NULL);
 		//NeuralNetwork* NN = new NeuralNetwork();
-		ErrorHalfSquared err;
-		NeuralNetwork NN(&err);
+
+		NeuralNetwork NN(NeuralNetwork::ErrorHalfSquared);
 
 		NN.addLayer(&layer0);
 		NN.addLayer(&layer1);

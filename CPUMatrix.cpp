@@ -81,7 +81,7 @@ void CPUMatrix::convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractM
 	}
 
 /**
- * @param in input matrix y: Y*Z, x: X
+ * this - input matrix y: Y*Z, x: X
  * @param layer convolution matrix y: convY*Z, x: convX1 + convX2 + convX3... convX(convZ) - the Z dimension are stored adjacently in the Y axis, The convZ dimension are split into chunks in the X axis
  * @param this_layer_conv_error the error in this conv layer (LR already applied)
  * @param bias size = convZ
@@ -97,7 +97,7 @@ void CPUMatrix::convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractM
  * @param convY the Y dimension of the convolution layer
  * @param convZ the Z depth of the convolution layer, equal to the Z dimension of the input (the Z dimension of the input can be used as RGB or whatever)
  */
-void CPUMatrix::convBackprop(AbstractMatrix* in, AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* out_error, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
+void CPUMatrix::convBackprop(AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* out_error, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
 	for (int x = 0; x < out->get_size(); x++) {
 		gradient->setIndex(x, out_error->index(x) * tanhd_on_tanh(out->index(x)));
 
@@ -117,7 +117,7 @@ void CPUMatrix::convBackprop(AbstractMatrix* in, AbstractMatrix* layer, Abstract
 				for (int cX = 0; cX < convX; cX++) {
 					for (int cYZ = 0; cYZ < convY * convZ; cYZ++) {
 
-						double error_at_index_in_conv = in->index(oY+cYZ, oX+cX) * this_conv_output_gradient;
+						double error_at_index_in_conv = index(oY+cYZ, oX+cX) * this_conv_output_gradient;
 						
 						
 						

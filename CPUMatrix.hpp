@@ -417,7 +417,7 @@ This should rather use Transfer or else the copy constructor
 
 
 	/**
-	 * @param in input matrix y: Y*Z, x: X
+	 * this - input matrix y: Y*Z, x: X
 	 * @param layer convolution matrix y: convY*Z, x: convX1 + convX2 + convX3... convX(convZ) - the Z dimension are stored adjacently in the Y axis, The convZ dimension are split into chunks in the X axis
 	 * @param this_layer_conv_error the error in this conv layer (LR already applied)
 	 * @param bias size = convZ
@@ -433,7 +433,7 @@ This should rather use Transfer or else the copy constructor
 	 * @param convY the Y dimension of the convolution layer
 	 * @param convZ the Z depth of the convolution layer, equal to the Z dimension of the input (the Z dimension of the input can be used as RGB or whatever)
 	 */
-	void convBackprop(AbstractMatrix* in, AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* out_error, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) override;
+	void convBackprop(AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* out_error, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) override;
 
 
 	private:

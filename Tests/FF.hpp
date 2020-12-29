@@ -10,7 +10,7 @@ namespace Test_FF{
 		Matrix::forceUseCPU();
 		XOR dataset;
 
-		NeuralNetwork NN(new ErrorHalfSquared);
+		NeuralNetwork NN(NeuralNetwork::ErrorHalfSquared);
 		NN.addLayer(new FeedForwardLayer(2,2,NULL));
 		NN.addLayer(new FeedForwardLayer(2,1,NULL));
 
@@ -26,7 +26,7 @@ namespace Test_FF{
 		Matrix::forceUseGPU();
 		XOR dataset;
 
-		NeuralNetwork NN(new ErrorHalfSquared);
+		NeuralNetwork NN(NeuralNetwork::ErrorHalfSquared);
 		NN.addLayer(new FeedForwardLayer(2,2,NULL));
 		NN.addLayer(new FeedForwardLayer(2,1,NULL));
 
