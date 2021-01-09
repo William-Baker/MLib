@@ -39,7 +39,7 @@ class Trainer{
 	 * @param performance_target the desired accuracy of the network across a batch (0-1) 0 is better
 	 * @return performance of the network (0-1) 0 is better
 	 */
-	double beginTraining(double performance_target, double LR = 0.05){
+	double begin_training(double performance_target, double LR = 0.05){
 		double current_performance = 1;
 
 		//>= so 0 is a valid target
@@ -49,7 +49,8 @@ class Trainer{
 				MLCase current_case = data->get_next_case();
 				NN->compute(current_case.inputs);
 				Matrix tmp(current_case.outputs, false);
-				performance_tally += NN->backprop(tmp, LR);
+				NN->backprop(tmp, LR);
+				performance_tally += NN->get_error(tmp);
 			}
 			current_performance = performance_tally / batch_size;
 			std::cout << "Current performance: " << current_performance << std::endl;
@@ -57,6 +58,35 @@ class Trainer{
 			//NN->print();
 		}
 		return current_performance;
+	}
+
+};
+
+class Tester{
+	public:
+	DataSetProvider* data = 0;
+	NeuralNetwork* NN = 0;
+	/**
+	 * @param batch_size set to 0 to calculate batch size automatically
+	 */
+	Tester(DataSetProvider* data, NeuralNetwork* NN){
+		this->data = data;
+		this->NN = NN;
+	}
+	/**
+	 * @param performance_target the desired accuracy of the network across a batch (0-1) 0 is better
+	 * @return performance of the network (0-1) 0 is better
+	 */
+	double compute_accuracy(){
+		double performance_tally = 0;
+		for(auto data_item = 0; data_item < data->get_size(); data_item++){
+			MLCase current_case = data->get_next_case();
+			NN->compute(current_case.inputs);
+			Matrix tmp(current_case.outputs, false);
+			performance_tally += NN->get_error(tmp);
+			
+		}
+		return performance_tally / data->get_size();
 	}
 
 };
@@ -214,8 +244,8 @@ class TrainCases : public DataSetProvider {
 			label_matrix = new GPUMatrix(dim_label[1], dim_label[0], label);
 		}
 		else {
-			data_matrix = new GPUMatrix(dim_data[1], dim_data[0], data);
-			label_matrix = new GPUMatrix(dim_label[1], dim_label[0], label);
+			data_matrix = new CPUMatrix(dim_data[1], dim_data[0], data);
+			label_matrix = new CPUMatrix(dim_label[1], dim_label[0], label);
 		}
 
 		load_case( MLCase(data_matrix, label_matrix) );
@@ -305,7 +335,7 @@ class TrainCases : public DataSetProvider {
 	};
 private:
 	void switchToCPUOnUsage(double maxMemUsage) {
-		if (Matrix::checkGPU()) {
+		if (Matrix::usingGPU()) {
 			size_t free, used;
 			cudaMemGetInfo(&free, &used);
 			if (used / (used + free) > maxMemUsage) {
@@ -315,15 +345,5 @@ private:
 			else using_gpu = true;//we may want to resume GPU usage
 		}
 	}
-};
-
-class TrestManager{
-    std::vector<std::vector<uint8_t>> array;
-     std::vector<double> labels;
-    TrestManager(std::vector<std::vector<uint8_t>> array, std::vector<double> labels ){
-        this->array = array;
-        this->labels = labels;
-
-    }
 };
 

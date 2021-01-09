@@ -13,8 +13,8 @@ namespace Test {
 		std::cout << "----- Conv ----" << std::endl;
 		{
 			Matrix::forceUseCPU();
-
-			ConvLayer cv(3, 3, 1, 1, 2, 2,0);
+			InputLayer in;
+			ConvLayer cv(3, 3, 1, 1, 2, 2, &in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.4);
 			cv.layer.setIndex(2, 0.3);
@@ -39,7 +39,7 @@ namespace Test {
 			output.setIndex(2, tanh(0.34));
 			output.setIndex(3, tanh(-0.08));
 
-			cv.compute(input);
+			in.compute(input.getStrategy());
 
 			std::cout << "----- Error report ----" << std::endl;
 
@@ -53,7 +53,8 @@ namespace Test {
 		{
 			Matrix::forceUseGPU();
 
-			ConvLayer cv(3, 3, 1, 1, 2, 2,0);
+			InputLayer in;
+			ConvLayer cv(3, 3, 1, 1, 2, 2,&in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.4);
 			cv.layer.setIndex(2, 0.3);
@@ -78,7 +79,7 @@ namespace Test {
 			output.setIndex(2, tanh(0.34));
 			output.setIndex(3, tanh(-0.08));
 
-			cv.compute(input);
+			in.compute(input.getStrategy());
 
 			std::cout << "----- Error report ----" << std::endl;
 
@@ -92,7 +93,8 @@ namespace Test {
 		{
 			Matrix::forceUseCPU();
 
-			ConvLayer cv(3, 3, 2, 1, 2, 2,0);
+			InputLayer in;
+			ConvLayer cv(3, 3, 2, 1, 2, 2,&in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.2);
 			cv.layer.setIndex(2, 0.4);
@@ -131,7 +133,7 @@ namespace Test {
 			output.setIndex(2, tanh(1.08));
 			output.setIndex(3, tanh(0.24));
 
-			cv.compute(input);
+			in.compute(input.getStrategy());
 
 			std::cout << "----- Error report ----" << std::endl;
 
@@ -145,7 +147,8 @@ namespace Test {
 		{
 			Matrix::forceUseGPU();
 
-			ConvLayer cv(3, 3, 2, 1, 2, 2,0);
+			InputLayer in;
+			ConvLayer cv(3, 3, 2, 1, 2, 2,&in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.2);
 			cv.layer.setIndex(2, 0.4);
@@ -184,7 +187,7 @@ namespace Test {
 			output.setIndex(2, tanh(1.08));
 			output.setIndex(3, tanh(0.24));
 
-			cv.compute(input);
+			in.compute(input.getStrategy());
 
 			std::cout << "----- Error report ----" << std::endl;
 
@@ -199,7 +202,8 @@ namespace Test {
 		{
 			Matrix::forceUseCPU();
 
-			ConvLayer cv(3, 3, 2, 2, 2, 2,0);
+			InputLayer in;
+			ConvLayer cv(3, 3, 2, 2, 2, 2,&in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.2);
 			cv.layer.setIndex(2, 0.4);
@@ -252,7 +256,7 @@ namespace Test {
 			output.setIndex(7, tanh(0.24));
 		
 
-			cv.compute(input);
+			in.compute(input.getStrategy());
 
 			std::cout << "----- Error report ----" << std::endl;
 
@@ -266,8 +270,9 @@ namespace Test {
 
 		{
 			Matrix::forceUseGPU();
-
-			ConvLayer cv(3, 3, 2, 2, 2, 2,NULL);
+			
+			InputLayer in;
+			ConvLayer cv(3, 3, 2, 2, 2, 2, &in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.2);
 			cv.layer.setIndex(2, 0.4);
@@ -320,7 +325,7 @@ namespace Test {
 			output.setIndex(7, tanh(0.24));
 
 
-			cv.compute(input);
+			in.compute(input.getStrategy());
 
 			std::cout << "----- Error report ----" << std::endl;
 
@@ -339,7 +344,8 @@ namespace Test {
 		std::cout << "----- Convolutional Backprop -----" << std::endl;
 		Matrix::forceUseCPU();
 		//nt inX, int inY, int inZ, int outZ, int convX, int convY, Layer* prevLayer
-		ConvLayer cv(3,3,2,1,2,2,NULL);
+		InputLayer in;
+		ConvLayer cv(3,3,2,1,2,2,&in);
 		cv.randomise();
 		Matrix input(6,3);
 		input.randomFill(0,1);
@@ -362,7 +368,7 @@ namespace Test {
 		int counter = 0;
 
 		while(err > 0.2){
-			cv.compute(input);
+			in.compute(input.getStrategy());
 			target.subtract(cv.output, error);
 			err = abs(error.index(0)) + abs(error.index(1)) + abs(error.index(2)) + abs(error.index(3));
 			cv.backprop(error, 0.1);
@@ -401,7 +407,8 @@ namespace Test {
 
 		Matrix::forceUseCPU();
 
-		ConvLayer cv(3, 3, 2, 2, 2, 2,NULL);
+		InputLayer in;
+		ConvLayer cv(3, 3, 2, 2, 2, 2, &in);
 		cv.layer.setIndex(0, 0.2);
 		cv.layer.setIndex(1, 0.2);
 		cv.layer.setIndex(2, 0.4);
@@ -442,13 +449,13 @@ namespace Test {
 		input.setIndex(16, -0.2);
 		input.setIndex(17, -0.2);
 
-		cv.compute(input);
+		in.compute(input.getStrategy());
 
-		CPUTensor in(static_cast<CPUMatrix*>(input.getStrategy()), 2);
+		CPUTensor ine(static_cast<CPUMatrix*>(input.getStrategy()), 2);
 		CPUTensor layer(static_cast<CPUMatrix*>(cv.layer.getStrategy()), 2, 2);
 		CPUTensor bias(static_cast<CPUMatrix*>(cv.bias.getStrategy()), 1);
 		CPUTensor ot(2,2,2);
-		in.convolute(&layer, &bias, &ot);
+		ine.convolute(&layer, &bias, &ot);
 
 
 		cv.output.print();
@@ -479,7 +486,7 @@ namespace Test {
 		Trainer t(&dataset, &NN, 1000);
 		int c = 0;
 
-		t.beginTraining(0.01, 0.5);
+		t.begin_training(0.01, 0.5);
 		std::cout << "trained: " << c++ << std::endl;
 		NN.randomise();
 

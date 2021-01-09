@@ -48,7 +48,8 @@ bool MNIST(){
 }
 
 int main(){
-   
+
+
     struct Option{
         std::string c;
         std::string desc;

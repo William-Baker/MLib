@@ -18,7 +18,7 @@ namespace Test_FF{
 
 		Trainer t(&dataset, &NN, 1000); //Data, model, batch size
 
-		t.beginTraining(0.01, 0.5); //performance targe, LR
+		t.begin_training(0.01, 0.5); //performance targe, LR
 		return true;
 	}
 
@@ -34,7 +34,7 @@ namespace Test_FF{
 
 		Trainer t(&dataset, &NN, 1000); //Data, model, batch size
 
-		t.beginTraining(0.01, 0.5); //performance targe, LR
+		t.begin_training(0.01, 0.5); //performance targe, LR
 		Matrix::forceUseCPU();
 		return true;
 	}

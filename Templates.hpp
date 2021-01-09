@@ -47,6 +47,8 @@ public:
 	 */
 	virtual const E* get_array_host() const = 0;
 
+
+
 	virtual E index(size_t Y, size_t X) const = 0; //const indexing so consistent for GPU
 	virtual E index(size_t i) const = 0;
 
@@ -121,6 +123,11 @@ public:
 
 	virtual double sum() const = 0;
 
+	/**
+	 * used when wanting to have two matrices pointing to the same data with different dimensions
+	 * @returns a new abstarct matrix pointing to the same array as this
+	 */
+	virtual AbstractMatrix* copy_keeping_array() const = 0;
 
 	//Add at index
 	virtual void addIndex(size_t Y, size_t X, double value) = 0;
@@ -143,7 +150,24 @@ public:
 
 	//Addons
 	virtual void convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* out, int outY, int outX, int outZ, int convY, int convX, int convZ) = 0;
-
-	virtual void convBackprop(AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* out_error, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) = 0;
+/**
+ * this - output error to back propigate
+ * @param input matrix y: Y*Z, x: X
+ * @param layer convolution matrix y: convY*Z, x: convX1 + convX2 + convX3... convX(convZ) - the Z dimension are stored adjacently in the Y axis, The convZ dimension are split into chunks in the X axis
+ * @param this_layer_conv_error the error in this conv layer (LR already applied)
+ * @param bias size = convZ
+ * @param prevError error at the input to the layer
+ * @param out the output of the network
+ * @param out_error error at the output of this layer
+ * @param gradient, the gradient at the output of this layer
+ * @param LR learning rate scalar to apple
+ * @param outY the Y size of the output matrix = inY - floor(convY/2)-1
+ * @param outX the X size of the output matrix = inX - floor(convX/2)-1
+ * @param outZ the Z depth of the ouput eqault to the number of conv filters, also called f
+ * @param convX the X dimension of the convolution layer
+ * @param convY the Y dimension of the convolution layer
+ * @param convZ the Z depth of the convolution layer, equal to the Z dimension of the input (the Z dimension of the input can be used as RGB or whatever)
+ */
+	virtual void convBackprop(AbstractMatrix* input, AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) = 0;
 
 };

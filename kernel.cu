@@ -223,7 +223,7 @@ __global__ void convBackpropKernel(double* outError, double* in, double* layer, 
 	int oX = blockDim.x * blockIdx.x + threadIdx.x; //
 	int oY = blockDim.y * blockIdx.y + threadIdx.y; //
 	int f = blockDim.z * blockIdx.z + threadIdx.z; //
-
+	
 	if ((oX < outX) & (oY < outY) & (f < outZ)) {
 
 		for (int cX = 0; cX < convX; cX++) {

@@ -42,7 +42,8 @@ namespace TensorCoreTests{
 
         Matrix::forceUseCPU();
 
-        ConvLayer cv(3, 3, 2, 2, 2, 2,NULL);
+        InputLayer in;
+        ConvLayer cv(3, 3, 2, 2, 2, 2, &in);
         cv.layer.setIndex(0, 0.2);
         cv.layer.setIndex(1, 0.2);
         cv.layer.setIndex(2, 0.4);
@@ -83,13 +84,13 @@ namespace TensorCoreTests{
         input.setIndex(16, -0.2);
         input.setIndex(17, -0.2);
 
-        cv.compute(input);
+        in.compute(input.getStrategy());
 
-        CPUTensor in(static_cast<CPUMatrix*>(input.getStrategy()), 2);
+        CPUTensor ine(static_cast<CPUMatrix*>(input.getStrategy()), 2);
         CPUTensor layer(static_cast<CPUMatrix*>(cv.layer.getStrategy()), 2, 2);
         CPUTensor bias(static_cast<CPUMatrix*>(cv.bias.getStrategy()), 1);
         CPUTensor ot(2,2,2);
-        in.convolute(&layer, &bias, &ot);
+        ine.convolute(&layer, &bias, &ot);
 
         Matrix o(ot.get_implementation());
         double* arr = new double[8]{0.876393, 0.876393, 0.309507, 0.309507, 0.793199, 0.793199, 0.235496, 0.235496};
@@ -114,7 +115,8 @@ namespace TensorCoreTests{
 
         Matrix::forceUseGPU();
 
-        ConvLayer cv(3, 3, 2, 2, 2, 2,NULL);
+        InputLayer in;
+        ConvLayer cv(3, 3, 2, 2, 2, 2, &in);
         cv.layer.setIndex(0, 0.2);
         cv.layer.setIndex(1, 0.2);
         cv.layer.setIndex(2, 0.4);
@@ -155,13 +157,13 @@ namespace TensorCoreTests{
         input.setIndex(16, -0.2);
         input.setIndex(17, -0.2);
 
-        cv.compute(input);
+        in.compute(input.getStrategy());
 
-        CPUTensor in(static_cast<CPUMatrix*>(input.getStrategy()), 2);
+        CPUTensor ine(static_cast<CPUMatrix*>(input.getStrategy()), 2);
         CPUTensor layer(static_cast<CPUMatrix*>(cv.layer.getStrategy()), 2, 2);
         CPUTensor bias(static_cast<CPUMatrix*>(cv.bias.getStrategy()), 1);
         CPUTensor ot(2,2,2);
-        in.convolute(&layer, &bias, &ot);
+        ine.convolute(&layer, &bias, &ot);
 
         Matrix o(ot.get_implementation());
         double* arr = new double[8]{0.876393, 0.876393, 0.309507, 0.309507, 0.793199, 0.793199, 0.235496, 0.235496};

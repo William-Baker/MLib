@@ -19,16 +19,23 @@ bool Matrix::checkGPU() {
 	
 }
 
+void Matrix::resetGPUState() {
+	checked = false;
+	checkGPU();
+}
+
 
 void Matrix::forceUseGPU() {
-	Matrix::checkGPU();
+	checkGPU();
 	hasGPU = true;
 }
 void Matrix::forceUseCPU() {
-	Matrix::checkGPU();
+	checkGPU();
 	hasGPU = false;
 }
 
-
+bool Matrix::usingGPU(){
+	return hasGPU;
+}
 
 

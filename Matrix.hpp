@@ -50,10 +50,10 @@ public:
 			m = static_cast<AbstractMatrix<double>*>(s);
 		}
 		else if(s->struct_type == MLStruct<double>::StructType::STRUCT_UNKNOWN){
-			throw("Bad struct type, you forgot to set the structure type when constructing");
+			ilog(FATAL_ERROR, "Bad struct type, you forgot to set the structure type when constructing");
 		}
 		else{
-			throw("unrecognisedstruct type");
+			ilog(FATAL_ERROR, "unrecognisedstruct type");
 		}
 		
 	}
@@ -159,6 +159,10 @@ public:
 		else m = new CPUMatrix(temp);
 	}
 
+	Matrix copy_keeping_same_data(){
+		return Matrix(m->copy_keeping_array());
+	}
+
 	Matrix& operator=(Matrix&& B) {
 		m = B.m;
 		B.delete_implementation();
@@ -194,6 +198,8 @@ public:
 	static void forceUseGPU();
 	static void forceUseCPU();
 	static bool checkGPU();
+	static void resetGPUState();
+	static bool usingGPU();
 
 
 	double* get_implementation_array() { return m->get_implementation_array(); }
@@ -255,39 +261,39 @@ public:
 
 	double index(size_t Y, size_t X) {
 		if(Y >= height() || X >= width()){
-			throw("bad index");
+			ilog(FATAL_ERROR, "bad index");
 		}
 		return m->index(Y, X); 
 	}
 	double index(size_t i) {
 		if(i >= size()){
-			throw("bad index");
+			ilog(FATAL_ERROR, "bad index");
 		}
 		return m->index(i); 
 	}
 
 	void setIndex(size_t Y, size_t X, double val) {
 		if(Y >= height() || X >= width()){
-			throw("bad index");
+			ilog(FATAL_ERROR, "bad index");
 		}
 		m->setIndex(Y, X, val);
 	}
 	void setIndex(size_t i, double val) {
 		if(i >= size()){
-			throw("bad index");
+			ilog(FATAL_ERROR, "bad index");
 		}
 		m->setIndex(i, val); 
 	}
 
 	void addIndex(size_t Y, size_t X, double value) {
 		if(Y >= height() || X >= width()){
-			throw("bad index");
+			ilog(FATAL_ERROR, "bad index");
 		}
 		m->addIndex(Y, X, value); 
 	}
 	void addIndex(size_t i, double value) {
 		if(i >= size()){
-			throw("bad index");
+			ilog(FATAL_ERROR, "bad index");
 		}
 		m->addIndex(i, value); 
 		}
@@ -310,7 +316,7 @@ public:
 	void multiply(Matrix& B, Matrix& C) {
 		#ifdef CHECK_DIMS
 		if (width() != B.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		#endif
 		m->multiply(B.getStrategy(), C.getStrategy()); 
@@ -320,7 +326,7 @@ public:
 	void multiplyA(Matrix& B, Matrix& C) { 
 		#ifdef CHECK_DIMS
 		if (height() != B.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		#endif
 		return m->multiplyA(B.getStrategy(), C.getStrategy());  
@@ -330,7 +336,7 @@ public:
 	void multiplyB(Matrix& B, Matrix& C) { 
 		#ifdef CHECK_DIMS
 		if (width() != B.width()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		#endif
 		return m->multiplyB(B.getStrategy(), C.getStrategy()); 
@@ -340,7 +346,7 @@ public:
 	void multiplyAB(Matrix& B, Matrix& C) {
 		#ifdef CHECK_DIMS
 		if (height() != B.width()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		#endif
 		return m->multiplyAB(B.getStrategy(), C.getStrategy());
@@ -349,7 +355,7 @@ public:
 	Matrix multiplyElementWise(Matrix& B) {
 		#ifdef CHECK_DIMS
 		if(!((width() == B.width()) && (height() == B.height()) ))
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		#endif
 		return Matrix(m->multiplyElementWise(B.getStrategy()));
 	}
@@ -357,7 +363,7 @@ public:
 	void multiplyElementWise(Matrix& B, Matrix& C){
 		#ifdef CHECK_DIMS
 		if(!((width() == B.width() && width() == C.width()) && (height() == B.height() && height() == C.height()) ))
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		#endif
 		m->multiplyElementWise(B.getStrategy(), C.getStrategy());
 	}
@@ -365,14 +371,14 @@ public:
 	Matrix divideElementWise(Matrix& B) {
 		#ifdef CHECK_DIMS
 		if(!((width() == B.width()) && (height() == B.height()) ))
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		#endif
 		return Matrix(m->divideElementWise(B.getStrategy()));
 	}
 	void divideElementWise(Matrix& B, Matrix& C) {
 		#ifdef CHECK_DIMS
 		if(!((width() == B.width() && width() == C.width()) && (height() == B.height() && height() == C.height()) ))
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		#endif
 		return m->divideElementWise(B.getStrategy(), C.getStrategy());
 	}
@@ -382,7 +388,7 @@ public:
 	}
 	void sigmoid(Matrix& C) {
 		if (width() != C.width() || height() != C.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		m->sigmoid(C.getStrategy());
 	}
@@ -392,47 +398,47 @@ public:
 	}
 	void sigmoidDifferential(Matrix& C) {
 		if (width() != C.width() || height() != C.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		m->sigmoidDifferential(C.getStrategy());
 	}
 
 	Matrix add(Matrix& B){
 		if (width() != B.width() || height() != B.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		return Matrix(m->add(B.getStrategy()));
 	}
 	void add(Matrix& B, Matrix& C) {
 		if (width() != B.width() || height() != B.height() ||  B.width() != C.width() || B.height() != C.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		m->add(B.getStrategy(), C.getStrategy());
 	}
 
 	void addAssign(Matrix& B) {
 		if (width() != B.width() || height() != B.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		m->addAssign(B.getStrategy());
 	}
 	
 
 	Matrix subtract(Matrix& B){
-		if (width() != B.width() || height() != B.height())  throw("Dimension mismatch");
+		if (width() != B.width() || height() != B.height())  ilog(FATAL_ERROR, "Dimension mismatch");
 		return Matrix(m->subtract(B.getStrategy()));
 	}
 
 	void subtract(Matrix& B, Matrix& C) {
 		if (width() != B.width() || height() != B.height() || B.width() != C.width() || B.height() != C.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		m->subtract(B.getStrategy(), C.getStrategy());
 	}
 
 	void subtractAssign(Matrix& B) {
 		if (width() != B.width() || height() != B.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		m->subtractAssign(B.getStrategy());
 	}
@@ -442,7 +448,7 @@ public:
 	}
 	void addConst(double B, Matrix& C){
 		if (width() != C.width() || height() != C.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		m->addConst(B, C.getStrategy());
 	}
@@ -453,7 +459,7 @@ public:
 
 	void scale(double B, Matrix& C) {
 		if (width() != C.width() || height() != C.height()) {
-			throw("Dimension mismatch");
+			ilog(FATAL_ERROR, "Dimension mismatch");
 		}
 		m->scale(B, C.getStrategy());
 	}
@@ -468,15 +474,21 @@ public:
 	/**
 	 * Called iun contex of input matrix
 	 */
-	void convBackprop(Matrix& layer, Matrix& this_layer_conv_error, Matrix& prevError, Matrix& bias, Matrix& out, Matrix& out_error, Matrix& gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
-		m->convBackprop(layer.m, this_layer_conv_error.m, prevError.m, bias.m, out.m, out_error.m , gradient.m, outY, outX, outZ, convY, convX, convZ, LR);
+	void convBackprop(Matrix& input, Matrix& layer, Matrix& this_layer_conv_error, Matrix& prevError, Matrix& bias, Matrix& out, Matrix& out_error, Matrix& gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
+		if(width() != out.width() || height() != out.height()){
+			ilog(FATAL_ERROR, "Dimension missmatch");
+		}
+		m->convBackprop(input.m, layer.m, this_layer_conv_error.m, prevError.m, bias.m, out.m, gradient.m, outY, outX, outZ, convY, convX, convZ, LR);
 	}
 
 	void randomFill(double min, double max) { m->randomFill(min, max); }
 	void randomFill(double negmin, double negmax, double min, double max) { m->randomFill(negmin, negmax, min, max); }
 
 
-
+	void flatten(){
+		m->y = m->get_size();
+		m->x = 1;
+	}
 
 
 
@@ -529,6 +541,15 @@ public:
 		return ret;
 	}
 
+	class MaintainState{
+		bool state_using_gpu;
+	public:
+		MaintainState() : state_using_gpu(Matrix::usingGPU()){}
+		~MaintainState(){
+			if(state_using_gpu) Matrix::forceUseGPU();
+			else Matrix::forceUseCPU();
+		}
+	};
 
 };
 
