@@ -146,6 +146,20 @@ build CMakeFiles/test.dir/GPUTensor.cu.o: CUDA_COMPILER__test ../GPUTensor.cu ||
   OBJECT_DIR = CMakeFiles/test.dir
   OBJECT_FILE_DIR = CMakeFiles/test.dir
 
+build CMakeFiles/test.dir/FeedForwardLayer.cpp.o: CXX_COMPILER__test ../FeedForwardLayer.cpp || cmake_object_order_depends_target_test
+  DEP_FILE = CMakeFiles/test.dir/FeedForwardLayer.cpp.o.d
+  FLAGS = -g   -std=gnu++11
+  INCLUDES = -I../PNG -I../PNG/libpng-code -I../include
+  OBJECT_DIR = CMakeFiles/test.dir
+  OBJECT_FILE_DIR = CMakeFiles/test.dir
+
+build CMakeFiles/test.dir/ConvolutionalLayer.cpp.o: CXX_COMPILER__test ../ConvolutionalLayer.cpp || cmake_object_order_depends_target_test
+  DEP_FILE = CMakeFiles/test.dir/ConvolutionalLayer.cpp.o.d
+  FLAGS = -g   -std=gnu++11
+  INCLUDES = -I../PNG -I../PNG/libpng-code -I../include
+  OBJECT_DIR = CMakeFiles/test.dir
+  OBJECT_FILE_DIR = CMakeFiles/test.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target test
@@ -154,7 +168,7 @@ build CMakeFiles/test.dir/GPUTensor.cu.o: CUDA_COMPILER__test ../GPUTensor.cu ||
 #############################################
 # Link the executable test
 
-build test: CXX_EXECUTABLE_LINKER__test CMakeFiles/test.dir/Tests/test.cpp.o CMakeFiles/test.dir/Matrix.cpp.o CMakeFiles/test.dir/GPUMatrix.cu.o CMakeFiles/test.dir/CPUMatrix.cpp.o CMakeFiles/test.dir/src/IO.cpp.o CMakeFiles/test.dir/GPUTensor.cu.o | PNG/libpng-code/libpng17d.so.17.0.0 /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libm.so || PNG/libpng-code/libpng17d.so PNG/libpng-code/libpng17d.so
+build test: CXX_EXECUTABLE_LINKER__test CMakeFiles/test.dir/Tests/test.cpp.o CMakeFiles/test.dir/Matrix.cpp.o CMakeFiles/test.dir/GPUMatrix.cu.o CMakeFiles/test.dir/CPUMatrix.cpp.o CMakeFiles/test.dir/src/IO.cpp.o CMakeFiles/test.dir/GPUTensor.cu.o CMakeFiles/test.dir/FeedForwardLayer.cpp.o CMakeFiles/test.dir/ConvolutionalLayer.cpp.o | PNG/libpng-code/libpng17d.so.17.0.0 /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libm.so || PNG/libpng-code/libpng17d.so PNG/libpng-code/libpng17d.so
   FLAGS = -g
   LINK_LIBRARIES = -Wl,-rpath,/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code  -lcublas  -lcudart  PNG/libpng-code/libpng17d.so.17.0.0  /usr/lib/x86_64-linux-gnu/libz.so  -lm  -lcudadevrt  -lcudart_static  -lrt  -lpthread  -ldl
   LINK_PATH = -L/usr/lib/x86_64-linux-gnu/stubs   -L/usr/lib/gcc/x86_64-linux-gnu/8
@@ -215,6 +229,20 @@ build CMakeFiles/main.dir/GPUTensor.cu.o: CUDA_COMPILER__main ../GPUTensor.cu ||
   OBJECT_DIR = CMakeFiles/main.dir
   OBJECT_FILE_DIR = CMakeFiles/main.dir
 
+build CMakeFiles/main.dir/FeedForwardLayer.cpp.o: CXX_COMPILER__main ../FeedForwardLayer.cpp || cmake_object_order_depends_target_main
+  DEP_FILE = CMakeFiles/main.dir/FeedForwardLayer.cpp.o.d
+  FLAGS = -g   -std=gnu++11
+  INCLUDES = -I../PNG -I../PNG/libpng-code -I../include
+  OBJECT_DIR = CMakeFiles/main.dir
+  OBJECT_FILE_DIR = CMakeFiles/main.dir
+
+build CMakeFiles/main.dir/ConvolutionalLayer.cpp.o: CXX_COMPILER__main ../ConvolutionalLayer.cpp || cmake_object_order_depends_target_main
+  DEP_FILE = CMakeFiles/main.dir/ConvolutionalLayer.cpp.o.d
+  FLAGS = -g   -std=gnu++11
+  INCLUDES = -I../PNG -I../PNG/libpng-code -I../include
+  OBJECT_DIR = CMakeFiles/main.dir
+  OBJECT_FILE_DIR = CMakeFiles/main.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target main
@@ -223,7 +251,7 @@ build CMakeFiles/main.dir/GPUTensor.cu.o: CUDA_COMPILER__main ../GPUTensor.cu ||
 #############################################
 # Link the executable main
 
-build main: CXX_EXECUTABLE_LINKER__main CMakeFiles/main.dir/Source.cpp.o CMakeFiles/main.dir/Matrix.cpp.o CMakeFiles/main.dir/GPUMatrix.cu.o CMakeFiles/main.dir/CPUMatrix.cpp.o CMakeFiles/main.dir/src/IO.cpp.o CMakeFiles/main.dir/GPUTensor.cu.o | PNG/libpng-code/libpng17d.so.17.0.0 /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libm.so || PNG/libpng-code/libpng17d.so PNG/libpng-code/libpng17d.so
+build main: CXX_EXECUTABLE_LINKER__main CMakeFiles/main.dir/Source.cpp.o CMakeFiles/main.dir/Matrix.cpp.o CMakeFiles/main.dir/GPUMatrix.cu.o CMakeFiles/main.dir/CPUMatrix.cpp.o CMakeFiles/main.dir/src/IO.cpp.o CMakeFiles/main.dir/GPUTensor.cu.o CMakeFiles/main.dir/FeedForwardLayer.cpp.o CMakeFiles/main.dir/ConvolutionalLayer.cpp.o | PNG/libpng-code/libpng17d.so.17.0.0 /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libm.so || PNG/libpng-code/libpng17d.so PNG/libpng-code/libpng17d.so
   FLAGS = -g
   LINK_LIBRARIES = -Wl,-rpath,/home/w/Documents/MatrixStrategy/ninja/PNG/libpng-code  -lcublas  -lcudart  PNG/libpng-code/libpng17d.so.17.0.0  /usr/lib/x86_64-linux-gnu/libz.so  -lm  -lcudadevrt  -lcudart_static  -lrt  -lpthread  -ldl
   LINK_PATH = -L/usr/lib/x86_64-linux-gnu/stubs   -L/usr/lib/gcc/x86_64-linux-gnu/8

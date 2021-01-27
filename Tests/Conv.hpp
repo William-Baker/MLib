@@ -43,7 +43,7 @@ namespace TensorCoreTests{
         Matrix::forceUseCPU();
 
         InputLayer in;
-        ConvLayer cv(3, 3, 2, 2, 2, 2, &in);
+        ConvolutionalLayer cv(3, 3, 2, 2, 2, 2, &in);
         cv.layer.setIndex(0, 0.2);
         cv.layer.setIndex(1, 0.2);
         cv.layer.setIndex(2, 0.4);
@@ -116,7 +116,7 @@ namespace TensorCoreTests{
         Matrix::forceUseGPU();
 
         InputLayer in;
-        ConvLayer cv(3, 3, 2, 2, 2, 2, &in);
+        ConvolutionalLayer cv(3, 3, 2, 2, 2, 2, &in);
         cv.layer.setIndex(0, 0.2);
         cv.layer.setIndex(1, 0.2);
         cv.layer.setIndex(2, 0.4);

@@ -436,7 +436,7 @@ This should rather use Transfer or else the copy constructor
  * this - output error to back propigate
  * @param input matrix y: Y*Z, x: X
  * @param layer convolution matrix y: convY*Z, x: convX1 + convX2 + convX3... convX(convZ) - the Z dimension are stored adjacently in the Y axis, The convZ dimension are split into chunks in the X axis
- * @param this_layer_conv_error the error in this conv layer (LR already applied)
+ * @param layer_deltas the error in this conv layer (LR already applied)
  * @param bias size = convZ
  * @param prevError error at the input to the layer
  * @param out the output of the network
@@ -450,14 +450,18 @@ This should rather use Transfer or else the copy constructor
  * @param convY the Y dimension of the convolution layer
  * @param convZ the Z depth of the convolution layer, equal to the Z dimension of the input (the Z dimension of the input can be used as RGB or whatever)
  */
-void convBackprop(AbstractMatrix* input, AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) override;
+void convBackprop(AbstractMatrix* input, AbstractMatrix* layer, AbstractMatrix* layer_deltas, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) override;
 
 
 	private:
 		inline double tanh(double x) {
 			double ex = exp(x);
 			double nex = exp(-x);
-			return (ex - nex) / (nex + ex);
+			auto temp = (ex - nex) / (nex + ex);
+			if(isnan(temp)){
+				std::cout << "E\n";
+			}
+			return temp;
 		}
 		/* inline double tanhd(double x) {
 			double ex = exp(x);

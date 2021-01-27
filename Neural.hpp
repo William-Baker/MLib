@@ -1,191 +1,33 @@
 #pragma once
-#include "Matrix.hpp"
-#include <future>
+#include "FeedForwardLayer.hpp"
+#include "ConvolutionalLayer.hpp"
 
-
-
-
-
-
-class Layer {
-	Layer* nextLayer;
-	Layer* prevLayer;
-public:
-	
-	enum LayerType
-	{
-		FF,
-		CV,
-		REC,
-		INPUT,
-		OUTPUT
-	};
-	LayerType type;
-	
-	Layer(LayerType typeIn){
-		type = typeIn;
-		nextLayer = 0;
-		prevLayer = 0;
-	}
-
-	virtual void compute() = 0;
-	virtual void compute(MLStruct<double>* in) = 0;
-	virtual void backprop(double LR) = 0;
-	virtual void backprop(MLStruct<double>* err, double LR) = 0;
-	virtual void randomise() = 0;
-	virtual MLStruct<double>* getInputError() = 0;
-	virtual MLStruct<double>* getOutput() = 0;
-	virtual void print() = 0;
-
-
-	inline void setNextLayer(Layer* layer) {
-		nextLayer = layer;
-		if(layer) layer->prevLayer = this;
-	}
-	inline void setPrevLayer(Layer* layer) {
-		prevLayer = layer;
-		if(layer) layer->nextLayer = this;
-	}
-
-	
-
-	inline Layer* getNextLayer() {return nextLayer;}
-	inline Layer* getPrevLayer() {return prevLayer;}
-};
-
-class InputLayer : public Layer {
-public:
-	MLStruct<double>* output;
-
-	// InputLayer& operator=(InputLayer& m) {
-	// 	std::swap(this->output, m.output);
-	// 	std::swap(this->nextLayer, m.nextLayer);
-	// 	std::swap(this->prevLayer, m.prevLayer);
-	// 	std::swap(this->type, m.type);
-	// 	return *this;
-	// }
-
-	InputLayer() : Layer(INPUT){
-	}
-
-	InputLayer(Matrix* output) : InputLayer() {
-		this->output = (MLStruct<double>*)output;
-	}
-
-	InputLayer(MLStruct<double>* output) : InputLayer() {
-		this->output = output;
-	}
-
-	/**
-	 * Just passes the computation forward to the next element
-	 */
-	void compute() override {
-		if (getNextLayer()) {
-			getNextLayer()->compute();
-		}
-	}
-
-	/**
-	 * Just passes the computation forward to the next element, without modifying the input
-	 */
-	void compute(MLStruct<double>* input) override {
-		output = input; //Set the output as the input directly as this layer does nothing
-		if (getNextLayer()) {
-			getNextLayer()->compute(input);
-		}
-	}
-
-	void backprop(MLStruct<double>* err, double LR) override {
-		return;
-	}
-
-	void backprop(double LR) override {
-		return;
-	}
-
-	void randomise() override {
-		return;
-	}
-
-	MLStruct<double>* getInputError() override {
-		return nullptr;
-	}
-
-	MLStruct<double>* getOutput() override {
-		return output;
-	}
-
-	void print() override{
-		std::cout << "--------------- Input Layer ---------------" << std::endl;
-		output->print();
-	}
-
-};
-//TODO add warnings for empty functions
-class OutputLayer : public Layer{
-	public:
-	OutputLayer() : Layer(OUTPUT){
-	
-	}
-
-	void compute() override {
-	}
-
-	void compute(MLStruct<double>* input) {
-	}
-
-	virtual MLStruct<double>* computeErrorDifferential(MLStruct<double>* target) = 0;
-	virtual MLStruct<double>* computeError(MLStruct<double>* target) = 0;
-
-	/**
-	 * Pass backprop to previous element without modification
-	 */
-	void backprop(MLStruct<double>* err, double LR) override {
-		getPrevLayer()->backprop(err, LR);
-	}
-
-	/**
-	 * Pass backprop to previous element without modification
-	 */
-	void backprop(double LR) override {
-		getPrevLayer()->backprop(LR);
-	}
-
-
-	void randomise() override {
-		return;
-	}
-
-	MLStruct<double>* getOutput() override {
-		return getPrevLayer()->getOutput();
-	}
-
-};
 
 class ErrorHalfSquaredOutputLayer : public OutputLayer{
+	Matrix error_differential;
 	Matrix error;
 	Matrix intermediate;
 	public:
-	ErrorHalfSquaredOutputLayer(size_t input_size) : OutputLayer(), error(input_size, 1), intermediate(input_size, 1) {}
-	MLStruct<double>* computeErrorDifferential(MLStruct<double>* target) override{
-		Matrix prev_out(getPrevLayer()->getOutput(), false); //create temporary wrapper matrix for prev layer output matrix
+	ErrorHalfSquaredOutputLayer(size_t input_size) : OutputLayer(), error_differential(input_size, 1), error(input_size, 1), intermediate(input_size, 1) {}
+	void computeErrorDifferential(MLStruct<double>* target) override{
+		Matrix prev_out(get_prev_layer()->get_output(), false); //create temporary wrapper matrix for prev layer output matrix
 		Matrix target_matrix(target, false); //create temporary wrapper matrix for target matrix
-		target_matrix.subtract(prev_out, error);
-		return error.getStrategy();
+		target_matrix.subtract(prev_out, error_differential);
 	}
-	MLStruct<double>* computeError(MLStruct<double>* target) {
-		Matrix prev_out(getPrevLayer()->getOutput(), false); //create temporary wrapper matrix for prev layer output matrix
+	void computeError(MLStruct<double>* target) {
+		Matrix prev_out(get_prev_layer()->get_output(), false); //create temporary wrapper matrix for prev layer output matrix
 		Matrix target_matrix(target, false); //create temporary wrapper matrix for target matrix
 		target_matrix.subtract(prev_out, error);
 		error.multiply(error, intermediate);
 		intermediate.scale(0.5, error);
-		return error.getStrategy();
 	}
-	MLStruct<double>* getInputError() override {return error.getStrategy();}
+	MLStruct<double>* get_error_signal() override {return error_differential.getStrategy();}
 	void print() override{
 		std::cout << "--------------- Output Error ---------------" << std::endl;
 		error.print();
 	}
+
+	MLStruct<double>* get_error() {return error.getStrategy(); }
 };
 
 // class ErrorFunction {
@@ -246,293 +88,9 @@ class ErrorHalfSquaredOutputLayer : public OutputLayer{
 // 	}
 // };
 
-class FeedForwardLayer : public Layer {
-public:
-	Matrix weights;
-	Matrix biases;
-	Matrix output;
-	Matrix net;
-	Matrix errorSig; //The error signal at the input
-	Matrix temp2;
-	Matrix gradient;
-	Matrix weightsDeltas;
-	Matrix* input;
-	
-	
-	/* FeedForwardLayer& operator=(FeedForwardLayer&& m){
-		std::swap(this->weights, m.weights);
-		std::swap(this->biases, m.biases);
-		std::swap(this->output, m.output);
-		std::swap(this->net , m.net);
-		std::swap(this->errorSig , m.errorSig);
-		std::swap(this->temp2 , m.temp2);
-		std::swap(this->gradient , m.gradient);
-		std::swap(this->weightsDeltas , m.weightsDeltas);
-		std::swap(this->nextLayer , m.nextLayer);
-		std::swap(this->prevLayer , m.prevLayer);
-		std::swap(this->type , m.type);
-
-		return *this;
-	} */
-	FeedForwardLayer& operator=(FeedForwardLayer&& m) = default;
-
-	FeedForwardLayer() : Layer(FF){}
-	FeedForwardLayer(size_t inputs, size_t outputs, Layer* prevLayer) : FeedForwardLayer() {
-		weights = Matrix(outputs, inputs);
-		weightsDeltas = Matrix(outputs, inputs);
-		biases = Matrix(outputs, 1);
-		output = Matrix(outputs, 1);
-		errorSig = Matrix(inputs, 1);
-		net = Matrix(outputs, 1);
-		temp2 = Matrix(outputs, 1);
-		gradient = Matrix(outputs, 1);
-
-		setPrevLayer(prevLayer);
-	}
-
-	FeedForwardLayer(Matrix& Weights, Matrix& Biases, Layer* prevLayer) : FeedForwardLayer(){
-		weights = std::move(Weights);
-		weightsDeltas = Matrix(weights.height(), weights.width());
-		biases = Matrix(weights.height(), 1);
-		output = Matrix(weights.height(), 1);
-		errorSig = Matrix(weights.width(), 1);
-		net = Matrix(weights.height(), 1);
-		temp2 = Matrix(weights.height(), 1);
-		gradient = Matrix(weights.height(), 1);
-
-		setPrevLayer(prevLayer);
-	}
 
 
 
-
-
-
-	virtual MLStruct<double>* getInputError() override {
-		return errorSig.getStrategy();
-	}
-	virtual MLStruct<double>* getOutput() override {
-		return output.getStrategy();
-	}
-	
-
-
-//late oct
-
-
-
-	void randomise() override {
-		weights.randomFill(-0.3, -0.05, 0.05, 0.3);
-		biases.randomFill(-0.3, -0.05, 0.05, 0.3);
-		//weights.randomFill(0, 1);
-		//biases.randomFill(0, 1);
-	}
-
-	
-	// virtual void compute() override {
-	// 	Matrix tmp(getPrevLayer()->getOutput(), false);
-	// 	compute(tmp);
-	// }
-
-	void compute(MLStruct<double>* inputIn) override {
-		delete input;
-		input = new Matrix(inputIn, false);
-		compute();
-	}
-	void compute() override {
-		weights.multiply(*input, output);
-		output.add(biases, net);
-		net.sigmoid(output);
-		if (getNextLayer() != 0) {
-			getNextLayer()->compute();
-		}
-	}
-
-	void calculateErrorSignal(Matrix& outputError) {
-		weights.multiplyA(outputError, errorSig);
-		/*std::cout << "------- Output Error ------------" << std::endl;
-		outputError.print();
-		std::cout << "------- Weights ------------" << std::endl;
-		weights.print();
-		std::cout << "------- Error Signal ------------" << std::endl;
-		errorSig.print();
-		std::cout << std::endl;
-		std::cout << std::endl;
-		*/
-	}
-
-	void update(double LR, Matrix& errorSigAtOutput) {
-		output.sigmoidDifferential(gradient);
-		gradient.scale(LR, temp2);
-		temp2.multiplyElementWise(errorSigAtOutput, gradient);
-		gradient.multiplyB(*input, weightsDeltas);
-		weights.addAssign(weightsDeltas);
-		//std::cout << "------- Weights Deltas ------------" << std::endl;
-		//weightsDeltas.print();
-		biases.addAssign(gradient);
-	}
-
-	void backprop(double LR) override {
-		backprop(getNextLayer()->getInputError(), LR);
-	}
-	void backprop(MLStruct<double>* err, double LR) override{
-		Matrix tmp(err,false);
-		backprop(tmp, LR);
-	}
-	void backprop(Matrix& outErrorSig, double LR)  {
-		calculateErrorSignal(outErrorSig);
-		update(LR, outErrorSig);
-		getPrevLayer()->backprop(LR);	
-	}
-	
-	
-
-	void print() override {
-		std::cout << "--------------- FF Weights Layer Y: " << weights.height() << " X: " << weights.width() <<  " ---------------" << std::endl;
-		weights.print();
-		std::cout << "--------------- FF Weights Deltas Layer Y: " << weightsDeltas.height() << " X: " << weightsDeltas.width() << " ---------------" << std::endl;
-		weightsDeltas.print();
-		std::cout << "--------------- FF Biases Layer Y: " << biases.height() << " ---------------" << std::endl;
-		biases.print();
-		std::cout << "--------------- FF Output Layer Y: " << output.height() << " ---------------" << std::endl;
-		output.print();
-		std::cout << "--------------- FF Out Error Layer Y: " << errorSig.height() << " ---------------" << std::endl;
-		errorSig.print();
-		
-	}
-
-
-	
-};
-
-class ConvLayer : public Layer {
-	
-public:
-	Matrix layer; //Convolution layer
-	Matrix bias; //bias added to convolution output
-	Matrix output; //the output of this layer
-	Matrix layerError; //error in the convoltuiional layer
-	//Matrix unactivated_output; //output of the layer before activation function -- Not needed as not used
-	Matrix gradient; //gradient at the output
-	Matrix errorSignal;//The Error Signal at the input to this layer
-	Matrix* input;//Pointer to the last used input
-	int inX;
-	int inY;
-	int inZ;
-
-	int outX;
-	int outY;
-	int outZ;
-
-	int convX;
-	int convY;
-
-	ConvLayer() : Layer(CV) {}
-
-private:
-	void allocate() {
-		layer = Matrix(convY * inZ, convX * outZ);
-		bias = Matrix(outZ, 1);
-		output = Matrix(outY * outZ, outX);
-		layerError = Matrix(convY * inZ, convX * outZ);
-		gradient = Matrix(outY * outZ, outX);
-		errorSignal = Matrix(inY * inZ, inX);
-		
-	}
-public:
-
-	ConvLayer(int inX, int inY, int inZ, int outZ, int convX, int convY, Layer* prevLayer) : ConvLayer() {
-		this->inX = inX;
-		this->inY = inY;
-		this->inZ = inZ;
-
-		this->outX = inX - convX + 1;
-		this->outY = inY - convY + 1;
-		this->outZ = outZ;
-
-		this->convX = convX;
-		this->convY = convY;
-
-		setPrevLayer(prevLayer);
-
-		allocate();
-	}
-
-	ConvLayer(ConvLayer& m) = delete;
-
-
-
-
-	virtual MLStruct<double>* getInputError() override {
-		return errorSignal.getStrategy();
-	}
-	virtual MLStruct<double>* getOutput() override {
-		return output.getStrategy();
-	}
-
-	void randomise() override {
-		layer.randomFill(-0.3, -0.05, 0.05, 0.3);
-		bias.randomFill(-0.3, -0.05, 0.05, 0.3);
-
-	}
-	
-
-	void compute(MLStruct<double>* inputIn) override {
-		delete input;
-		input = new Matrix(inputIn, false);
-		compute();
-	}
-
-	void compute() override {
-		//AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* unactivated_output, AbstractMatrix* out
-		input->convolute(layer,  bias, output, outY, outX, outZ, convY, convX, inZ);
-		if (getNextLayer()) {
-			getNextLayer()->compute();
-		}
-	}
-	// void compute() override {
-	// 	compute(getPrevLayer()->getOutput());
-	// }
-
-
-	void backprop(Matrix &outError, double LR) {	
-		outError.convBackprop(*input, layer, layerError, errorSignal, bias, output, outError, gradient, outY, outX, outZ, convY, convX, inZ, LR);
-
-		if (getPrevLayer()) {
-			getPrevLayer()->backprop(LR);
-		}
-
-	}
-	void backprop(double LR) override {
-		backprop(getNextLayer()->getInputError(), LR);
-	}
-	void backprop(MLStruct<double>* err, double LR) override {
-		Matrix tmp(err, false);
-		backprop(tmp, LR);
-	}
-	
-	//Matrix layer;
-	//Matrix bias;
-	//Matrix output;
-	//Matrix net;
-	//Matrix errorSignal;//The Error Signal at teh input
-	void print() override {
-		std::cout << "--------------- CV Conv Layer Y: " << convY << " X: " << convX << " Z: " << inZ << "---------------" << std::endl;
-		layer.print();
-		std::cout << "--------------- CV Bias Layer Y: " << bias.height() << " ---------------" << std::endl;
-		bias.print();
-		std::cout << "--------------- CV output Layer Y: " << outY << " X: " << outX << " Z: " << outZ << " ---------------" << std::endl;
-		output.print();
-		std::cout << "--------------- CV error Layer Y: " << outY << " X: " << outX << " Z: " << outZ << " ---------------" << std::endl;
-		errorSignal.print();
-	}
-
-	~ConvLayer(){
-		delete input;
-	}
-
-
-};
 
 
 
@@ -540,7 +98,7 @@ public:
 class NeuralNetwork {
 	
 public:
-	std::vector<Layer*> layers;
+	std::vector<ActiveLayer*> layers;
 	InputLayer input_layer;
  	OutputLayer* output_layer;
 
@@ -555,55 +113,61 @@ public:
 	}
 private:
 	void generate_output_layer(){
-		size_t output_layer_size = layers.back()->getOutput()->get_size();
+		size_t output_layer_size = finalLayer()->get_output()->get_size();
 		if((error_function == Default) || (error_function == ErrorHalfSquared)){
 			output_layer = new ErrorHalfSquaredOutputLayer(output_layer_size);
 		}
-		output_layer->setPrevLayer(finalLayer());
+		output_layer->set_prev_layer(finalLayer());
 	}
 	
 	void link_layers(Layer* left, Layer* right){
-		if(left->getOutput()){
-			if(dynamic_cast<FeedForwardLayer*>(right)){
-				auto r = static_cast<FeedForwardLayer*>(right);
-				r->input = new Matrix(Matrix(left->getOutput(), false).copy_keeping_same_data());
-				r->input->flatten();
-				//TODO add verifaction here
-			}
-			else if (dynamic_cast<ConvLayer*>(right)){
-				auto r = static_cast<ConvLayer*>(right);
-				r->input = new Matrix(left->getOutput(), false);
-				//TODO verify?
-			}
+		if(dynamic_cast<FeedForwardLayer*>(right)){
+			auto r = static_cast<FeedForwardLayer*>(right);
+			r->connect_to_prev_layer(left);
+		}
+		else if (dynamic_cast<ConvolutionalLayer*>(right)){
+			auto r = static_cast<ConvolutionalLayer*>(right);
+			r->connect_to_prev_layer(left);			
+		}
+
+		if(dynamic_cast<FeedForwardLayer*>(left)){
+			auto l = static_cast<FeedForwardLayer*>(left);
+			l->connect_to_next_layer(right);
+		}
+		else if (dynamic_cast<ConvolutionalLayer*>(left)){
+			auto l = static_cast<ConvolutionalLayer*>(left);
+			l->connect_to_next_layer(right);
 		}
 	}
 
 public:
 
-	NeuralNetwork(std::vector<Layer*> layers, ErrorFunction err = Default) : NeuralNetwork() {
+	NeuralNetwork(std::vector<ActiveLayer*> layers, ErrorFunction err = Default) : NeuralNetwork() {
 		error_function = err;
 		this->layers = layers;
-		Layer* prevLayer = &input_layer;
+		Layer* prev_layer = &input_layer;
 		for (int i = 0; i < layers.size(); i++) {
-			layers[i]->setPrevLayer(prevLayer);
-			link_layers(prevLayer, layers[i]);
-			prevLayer = layers[i];
+			layers[i]->set_prev_layer(prev_layer);
+			link_layers(prev_layer, layers[i]);
+			prev_layer = layers[i];
 		}
 		generate_output_layer();
 	}
 
-	void addLayer(Layer* layer) {
+	template<typename LayerType> void addLayer(LayerType* layer) {
 		layers.push_back(layer);
-		if (layers.size() == 1) {
-			layer->setPrevLayer(&input_layer);
-		}
-		else {
-			layer->setPrevLayer(layers[layers.size() - 2]);
-			link_layers(layers[layers.size() - 2], layers[layers.size() - 1]);
-		}
+		
+		if (layers.size() == 1) layer->set_prev_layer(&input_layer);
+		else layer->set_prev_layer(layers[layers.size() - 2]);
+
+		link_layers(layers[layers.size() - 1]->get_prev_layer(), layers[layers.size() - 1]); //link this and prev
 		
 		delete output_layer; //delete the old output layer if applicable
 		generate_output_layer();
+		
+		link_layers(layers[layers.size() - 1], output_layer); //link this and output
+		
+		std::cout << layer->get_output()->get_size();
 	}
 
 	
@@ -625,16 +189,17 @@ public:
 	 */
 	double backprop(Matrix& target, double LR = 0.05) {
 
-		Matrix output_error(output_layer->computeErrorDifferential(target.getStrategy()), false);
+		output_layer->computeErrorDifferential(target.getStrategy());
 
-		finalLayer()->backprop(output_error.getStrategy(), LR);
+		finalLayer()->backprop(LR);
 
-		return output_error.sum();
+		return Matrix(output_layer->get_error_signal(), false).sum();
 
 	}
 
 	double get_error(Matrix& target) {
-		return Matrix(output_layer->computeError(target.getStrategy()), false).sum();
+		output_layer->computeError(target.getStrategy());
+		return Matrix(output_layer->get_error(), false).sum();
 	}
 
 	Layer* finalLayer() {
@@ -642,7 +207,7 @@ public:
 	}
 
 	Matrix get_output(){
-		return Matrix(finalLayer()->getOutput(), false);
+		return Matrix(finalLayer()->get_output(), false);
 	}
 
 	void print() {
@@ -650,6 +215,7 @@ public:
 		for (int i = 0; i < layers.size(); i++) {
 			layers[i]->print();
 		}
+		output_layer->print();
 	}
 
 	~NeuralNetwork(){

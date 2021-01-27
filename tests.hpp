@@ -14,7 +14,7 @@ namespace Test {
 		{
 			Matrix::forceUseCPU();
 			InputLayer in;
-			ConvLayer cv(3, 3, 1, 1, 2, 2, &in);
+			ConvolutionalLayer cv(3, 3, 1, 1, 2, 2, &in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.4);
 			cv.layer.setIndex(2, 0.3);
@@ -54,7 +54,7 @@ namespace Test {
 			Matrix::forceUseGPU();
 
 			InputLayer in;
-			ConvLayer cv(3, 3, 1, 1, 2, 2,&in);
+			ConvolutionalLayer cv(3, 3, 1, 1, 2, 2,&in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.4);
 			cv.layer.setIndex(2, 0.3);
@@ -94,7 +94,7 @@ namespace Test {
 			Matrix::forceUseCPU();
 
 			InputLayer in;
-			ConvLayer cv(3, 3, 2, 1, 2, 2,&in);
+			ConvolutionalLayer cv(3, 3, 2, 1, 2, 2,&in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.2);
 			cv.layer.setIndex(2, 0.4);
@@ -148,7 +148,7 @@ namespace Test {
 			Matrix::forceUseGPU();
 
 			InputLayer in;
-			ConvLayer cv(3, 3, 2, 1, 2, 2,&in);
+			ConvolutionalLayer cv(3, 3, 2, 1, 2, 2,&in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.2);
 			cv.layer.setIndex(2, 0.4);
@@ -203,7 +203,7 @@ namespace Test {
 			Matrix::forceUseCPU();
 
 			InputLayer in;
-			ConvLayer cv(3, 3, 2, 2, 2, 2,&in);
+			ConvolutionalLayer cv(3, 3, 2, 2, 2, 2,&in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.2);
 			cv.layer.setIndex(2, 0.4);
@@ -272,7 +272,7 @@ namespace Test {
 			Matrix::forceUseGPU();
 			
 			InputLayer in;
-			ConvLayer cv(3, 3, 2, 2, 2, 2, &in);
+			ConvolutionalLayer cv(3, 3, 2, 2, 2, 2, &in);
 			cv.layer.setIndex(0, 0.2);
 			cv.layer.setIndex(1, 0.2);
 			cv.layer.setIndex(2, 0.4);
@@ -345,7 +345,7 @@ namespace Test {
 		Matrix::forceUseCPU();
 		//nt inX, int inY, int inZ, int outZ, int convX, int convY, Layer* prevLayer
 		InputLayer in;
-		ConvLayer cv(3,3,2,1,2,2,&in);
+		ConvolutionalLayer cv(3,3,2,1,2,2,&in);
 		cv.randomise();
 		Matrix input(6,3);
 		input.randomFill(0,1);
@@ -408,7 +408,7 @@ namespace Test {
 		Matrix::forceUseCPU();
 
 		InputLayer in;
-		ConvLayer cv(3, 3, 2, 2, 2, 2, &in);
+		ConvolutionalLayer cv(3, 3, 2, 2, 2, 2, &in);
 		cv.layer.setIndex(0, 0.2);
 		cv.layer.setIndex(1, 0.2);
 		cv.layer.setIndex(2, 0.4);
@@ -636,8 +636,8 @@ namespace Test {
 	void CNNTest() {
 		Matrix::forceUseGPU();
 
-		ConvLayer layer0(4,4,1,1,3,3,NULL);
-		ConvLayer layer1(2,2,1,1,2,2,NULL);
+		ConvolutionalLayer layer0(4,4,1,1,3,3,NULL);
+		ConvolutionalLayer layer1(2,2,1,1,2,2,NULL);
 		//NeuralNetwork* NN = new NeuralNetwork();
 
 		NeuralNetwork NN(NeuralNetwork::ErrorHalfSquared);
@@ -670,8 +670,9 @@ namespace Test {
 			i++;
 			NN.compute(in.getStrategy());
 			NN.backprop(t);
-			//std::cout << i << std::endl;
-			if (abs(((Matrix*)NN.finalLayer()->getOutput())->index(0) - t.index(0)) < 0.01){
+			//std::cout << i << std::endl;#
+			
+			if (abs(NN.get_output().index(0) - t.index(0)) < 0.01){
 				std::cout << "Trained";
 				goto start;
 			}
@@ -686,8 +687,8 @@ namespace Test {
 	void BigCNNTest() {
 		//Matrix::forceUseCPU();
 		int d = 1000;
-		ConvLayer layer0(d, d, 2, 1, d-1, d-1, NULL);
-		ConvLayer layer1(2, 2, 1, 1, 2, 2, NULL);
+		ConvolutionalLayer layer0(d, d, 2, 1, d-1, d-1, NULL);
+		ConvolutionalLayer layer1(2, 2, 1, 1, 2, 2, NULL);
 		//NeuralNetwork* NN = new NeuralNetwork();
 
 		NeuralNetwork NN(NeuralNetwork::ErrorHalfSquared);

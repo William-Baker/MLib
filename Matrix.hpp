@@ -474,22 +474,34 @@ public:
 	/**
 	 * Called iun contex of input matrix
 	 */
-	void convBackprop(Matrix& input, Matrix& layer, Matrix& this_layer_conv_error, Matrix& prevError, Matrix& bias, Matrix& out, Matrix& out_error, Matrix& gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
+	void convBackprop(Matrix& input, Matrix& layer, Matrix& layer_deltas, Matrix& prevError, Matrix& bias, Matrix& out, Matrix& out_error, Matrix& gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
 		if(width() != out.width() || height() != out.height()){
 			ilog(FATAL_ERROR, "Dimension missmatch");
 		}
-		m->convBackprop(input.m, layer.m, this_layer_conv_error.m, prevError.m, bias.m, out.m, gradient.m, outY, outX, outZ, convY, convX, convZ, LR);
+		m->convBackprop(input.m, layer.m, layer_deltas.m, prevError.m, bias.m, out.m, gradient.m, outY, outX, outZ, convY, convX, convZ, LR);
 	}
 
 	void randomFill(double min, double max) { m->randomFill(min, max); }
 	void randomFill(double negmin, double negmax, double min, double max) { m->randomFill(negmin, negmax, min, max); }
 
-
+	/**
+	 * flattens to column vector
+	 */
 	void flatten(){
 		m->y = m->get_size();
 		m->x = 1;
 	}
 
+	/**
+	 * resize matrix - tests validity
+	 */
+	void resize(size_t Y, size_t X){
+		m->y = Y;
+		m->x = X;
+		if(Y * X != m->get_size()) {
+			ilog(FATAL_ERROR, "given dimensions incompatiable for resizing");
+		}
+	}
 
 
 

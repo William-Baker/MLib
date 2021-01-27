@@ -58,7 +58,8 @@ void CPUMatrix::randomFill(double lowerMin, double lowerMax, double upperMin, do
 		}
 	}
 }
-//TODO remove unactivated output - i think it already has been?
+//TODO remove unactuated output - i think it already has been?
+//TODO the error is here!
 void CPUMatrix::convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractMatrix* out, int outY, int outX, int outZ, int convY, int convX, int convZ) {
 	for (int oZ = 0; oZ < outZ; oZ++) {
 		for (int oX = 0; oX < outX; oX++) {
@@ -71,9 +72,14 @@ void CPUMatrix::convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractM
 						}
 					}
 					temp += bias->index(oZ);
-					
+					if(isnan(out->index(oY + outZ * oZ , oX))){
+						std::cout << "A\n";
+					}
 					//out->setIndex(oY * outZ + oZ , oX, tanh(temp));
 					out->setIndex(oY + outZ * oZ , oX, tanh(temp));
+					if(isnan(out->index(oY + outZ * oZ , oX))){
+						std::cout << "A\n";
+					}
 				}
 			}
 		}
@@ -84,7 +90,7 @@ void CPUMatrix::convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractM
  * this - output error to back propigate
  * @param input matrix y: Y*Z, x: X
  * @param layer convolution matrix y: convY*Z, x: convX1 + convX2 + convX3... convX(convZ) - the Z dimension are stored adjacently in the Y axis, The convZ dimension are split into chunks in the X axis
- * @param this_layer_conv_error the error in this conv layer (LR already applied)
+ * @param layer_deltas the error in this conv layer (LR already applied)
  * @param bias size = convZ
  * @param prevError error at the input to the layer
  * @param out the output of the network
@@ -98,7 +104,7 @@ void CPUMatrix::convolute(AbstractMatrix* layer, AbstractMatrix* bias, AbstractM
  * @param convY the Y dimension of the convolution layer
  * @param convZ the Z depth of the convolution layer, equal to the Z dimension of the input (the Z dimension of the input can be used as RGB or whatever)
  */
-void CPUMatrix::convBackprop(AbstractMatrix* input, AbstractMatrix* layer, AbstractMatrix* this_layer_conv_error, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
+void CPUMatrix::convBackprop(AbstractMatrix* input, AbstractMatrix* layer, AbstractMatrix* layer_deltas, AbstractMatrix* prevError, AbstractMatrix* bias, AbstractMatrix* out, AbstractMatrix* gradient, int outY, int outX, int outZ, int convY, int convX, int convZ, double LR) {
 	for (int x = 0; x < out->get_size(); x++) {
 		gradient->setIndex(x, index(x) * tanhd_on_tanh(out->index(x)));
 
@@ -106,7 +112,7 @@ void CPUMatrix::convBackprop(AbstractMatrix* input, AbstractMatrix* layer, Abstr
 
 	//Fill our matrices that dont get overwitten
 	prevError->fill(0);
-	this_layer_conv_error->fill(0);
+	layer_deltas->fill(0);
 
 	for (int oZ = 0; oZ < outZ; oZ++) {
 		for (int oX = 0; oX < outX; oX++) {
@@ -126,14 +132,14 @@ void CPUMatrix::convBackprop(AbstractMatrix* input, AbstractMatrix* layer, Abstr
 						prevError->addIndex(oY+cYZ, oX+cX, layer->index(cYZ, cX + convX*oZ) * this_conv_output_gradient);
 
 						error_at_index_in_conv *= LR;
-						this_layer_conv_error->addIndex(cYZ, cX + convX*oZ, error_at_index_in_conv);
+						layer_deltas->addIndex(cYZ, cX + convX*oZ, error_at_index_in_conv);
 					}
 				}
 			}
 		}
 	}
 
-	layer->addAssign(this_layer_conv_error);
+	layer->addAssign(layer_deltas);
 	
 }
 

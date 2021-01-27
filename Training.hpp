@@ -41,6 +41,13 @@ class Trainer{
 	 */
 	double begin_training(double performance_target, double LR = 0.05){
 		double current_performance = 1;
+		double i = 0;
+		while(true){
+			i++;
+			if(isnan(exp(i)/exp(i))){
+				std::cout << i;
+			}
+		}
 
 		//>= so 0 is a valid target
 		while(current_performance >= performance_target){
@@ -49,7 +56,11 @@ class Trainer{
 				MLCase current_case = data->get_next_case();
 				NN->compute(current_case.inputs);
 				Matrix tmp(current_case.outputs, false);
+				std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+				NN->print();
 				NN->backprop(tmp, LR);
+				std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+				NN->print();
 				performance_tally += NN->get_error(tmp);
 			}
 			current_performance = performance_tally / batch_size;
@@ -74,8 +85,7 @@ class Tester{
 		this->NN = NN;
 	}
 	/**
-	 * @param performance_target the desired accuracy of the network across a batch (0-1) 0 is better
-	 * @return performance of the network (0-1) 0 is better
+	 * return the accuracy of the network on the dataset as a percentage 0-1 - 1 would be ideal
 	 */
 	double compute_accuracy(){
 		double performance_tally = 0;
@@ -86,7 +96,7 @@ class Tester{
 			performance_tally += NN->get_error(tmp);
 			
 		}
-		return performance_tally / data->get_size();
+		return 1 - (performance_tally / data->get_size());
 	}
 
 };
@@ -201,7 +211,12 @@ class TrainCases : public DataSetProvider {
 	long ptr;
 	long livePtr;
 	inline long deadPtr(){return ptr-livePtr;}
-	inline void next_live(){ptr++; ptr%=size; livePtr++; livePtr%=live_cases.size();}
+	inline void next_live(){
+		ptr++;
+		ptr%=size;
+		livePtr++; 
+		livePtr%=live_cases.size();
+	}
 
 	std::future<void> future;
 
@@ -235,17 +250,27 @@ class TrainCases : public DataSetProvider {
 	 * @param labal the label data
 	 * @param dim_label dimensions of the label x,y,z,A,B
 	 */
-	void load_data(double* data, const std::vector<size_t> &dim_data, double* label, const std::vector<size_t> &dim_label){
+	template<typename A, typename B> void load_data(std::vector<A> data, const std::vector<size_t> &dim_data, B label, const std::vector<size_t> &dim_label){
 		switchToCPUOnUsage(max_GPU_memory_usage);
 		AbstractMatrix<double>* data_matrix;
 		AbstractMatrix<double>* label_matrix;
+
+		double* data_dbl = new double[data.size()];
+		for(int i = 0; i < data.size(); i++){
+			data_dbl[i] = data[i];
+		}
+		double* label_dbl = new double[1];
+		label_dbl[0] = label;
+		
 		if(using_gpu){
-			data_matrix = new GPUMatrix(dim_data[1], dim_data[0], data);
-			label_matrix = new GPUMatrix(dim_label[1], dim_label[0], label);
+			data_matrix = new GPUMatrix(dim_data[1], dim_data[0], data_dbl);
+			label_matrix = new GPUMatrix(dim_label[1], dim_label[0], label_dbl);
+			delete data_dbl;
+			delete label_dbl;
 		}
 		else {
-			data_matrix = new CPUMatrix(dim_data[1], dim_data[0], data);
-			label_matrix = new CPUMatrix(dim_label[1], dim_label[0], label);
+			data_matrix = new CPUMatrix(dim_data[1], dim_data[0], data_dbl);
+			label_matrix = new CPUMatrix(dim_label[1], dim_label[0], label_dbl);
 		}
 
 		load_case( MLCase(data_matrix, label_matrix) );
@@ -262,35 +287,40 @@ class TrainCases : public DataSetProvider {
 	 */
 	template<typename TwoDCollection, typename ZeroDdatatype> void load_dataset(std::vector<TwoDCollection> &data, const std::vector<size_t> dim_data, std::vector<ZeroDdatatype> &labels){
 		for(auto i = 0; i < data.size(); i++){
-			double label = labels[i];
-			std::vector<double> data_dbl(data[0].begin(), data[0].end());
-			load_data(data_dbl.data(), dim_data, &label, {1,1});
+			
+			//std::vector<double> data_dbl(data[i].begin(), data[i].end());
+			load_data(data[i], dim_data, labels[i], {1,1});
 		}
+	}
+
+	/**
+	 * Loads an mnist training dataset with png data and byte labels
+	 */
+	void load_dataset_png_byte_training(std::string subfolder) {
+		mnist::MNIST_dataset<std::vector, png::tRNS, uint8_t> dataset = mnist::read_dataset(subfolder, 0, 0); //read mnists data set folder with TODO: "filename" name
+	
+		if(dataset.training_images.size() == 0){
+			ilog(WARNING, "dataset: \"" + subfolder + "\" was empty");
+			return;
+		}
+		const size_t image_xy = std::sqrt(dataset.training_images[0].size());
+		load_dataset(dataset.training_images, {image_xy, image_xy},  dataset.training_labels);	
+
 	}
 
 	/**
 	 * Loads an mnist dataset with png data and byte labels
 	 */
-	void load_dataset_png_byte(std::string subfolder, bool load_train_not_test_data) {
+	void load_dataset_png_byte_testing(std::string subfolder) {
 		mnist::MNIST_dataset<std::vector, png::tRNS, uint8_t> dataset = mnist::read_dataset(subfolder, 0, 0); //read mnists data set folder with TODO: "filename" name
-		if(load_train_not_test_data){
-			if(dataset.training_images.size() == 0){
-				ilog(WARNING, "dataset: \"" + subfolder + "\" was empty");
-				return;
-			}
-			const size_t image_xy = std::sqrt(dataset.training_images[0].size());
-			load_dataset(dataset.training_images, {image_xy, image_xy},  dataset.training_labels);	
+	
+		if(dataset.test_images.size() == 0){
+			ilog(WARNING, "dataset: \"" + subfolder + "\" was empty");
+			return;
 		}
-		else{
-			if(dataset.test_images.size() == 0){
-				ilog(WARNING, "dataset: \"" + subfolder + "\" was empty");
-				return;
-			}
-			const size_t image_xy = std::sqrt(dataset.test_images[0].size());
-			load_dataset(dataset.test_images, {image_xy, image_xy},  dataset.test_labels);	
-		}
+		const size_t image_xy = std::sqrt(dataset.test_images[0].size());
+		load_dataset(dataset.test_images, {image_xy, image_xy},  dataset.test_labels);	
 	}
-
 
 
 	public:

@@ -15,6 +15,9 @@ set(Additional_Sources
     CPUMatrix.cpp
     src/IO.cpp
     GPUTensor.cu
+    FeedForwardLayer.cpp
+    ConvolutionalLayer.cpp
+
     ##Examples.cpp
     )
 

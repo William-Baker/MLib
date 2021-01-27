@@ -37,6 +37,18 @@
 
 {
   "directory": "/home/w/Documents/MatrixStrategy/build",
+  "command": "/bin/g++-10   -I../PNG -I../PNG/libpng-code -I../include  -g   -std=gnu++11 -o CMakeFiles/test.dir/FeedForwardLayer.cpp.o -c /home/w/Documents/MatrixStrategy/FeedForwardLayer.cpp",
+  "file": "/home/w/Documents/MatrixStrategy/FeedForwardLayer.cpp"
+},
+
+{
+  "directory": "/home/w/Documents/MatrixStrategy/build",
+  "command": "/bin/g++-10   -I../PNG -I../PNG/libpng-code -I../include  -g   -std=gnu++11 -o CMakeFiles/test.dir/ConvolutionalLayer.cpp.o -c /home/w/Documents/MatrixStrategy/ConvolutionalLayer.cpp",
+  "file": "/home/w/Documents/MatrixStrategy/ConvolutionalLayer.cpp"
+},
+
+{
+  "directory": "/home/w/Documents/MatrixStrategy/build",
   "command": "/bin/g++-10   -I../PNG -I../PNG/libpng-code -I../include  -g   -std=gnu++11 -o CMakeFiles/main.dir/Source.cpp.o -c /home/w/Documents/MatrixStrategy/Source.cpp",
   "file": "/home/w/Documents/MatrixStrategy/Source.cpp"
 },
@@ -69,6 +81,18 @@
   "directory": "/home/w/Documents/MatrixStrategy/build",
   "command": "/bin/nvcc   -I../PNG -I../PNG/libpng-code -I../include  -g   -x cu -c /home/w/Documents/MatrixStrategy/GPUTensor.cu -o CMakeFiles/main.dir/GPUTensor.cu.o && /bin/nvcc   -I../PNG -I../PNG/libpng-code -I../include  -g   -x cu -M /home/w/Documents/MatrixStrategy/GPUTensor.cu -MT CMakeFiles/main.dir/GPUTensor.cu.o -o $DEP_FILE",
   "file": "/home/w/Documents/MatrixStrategy/GPUTensor.cu"
+},
+
+{
+  "directory": "/home/w/Documents/MatrixStrategy/build",
+  "command": "/bin/g++-10   -I../PNG -I../PNG/libpng-code -I../include  -g   -std=gnu++11 -o CMakeFiles/main.dir/FeedForwardLayer.cpp.o -c /home/w/Documents/MatrixStrategy/FeedForwardLayer.cpp",
+  "file": "/home/w/Documents/MatrixStrategy/FeedForwardLayer.cpp"
+},
+
+{
+  "directory": "/home/w/Documents/MatrixStrategy/build",
+  "command": "/bin/g++-10   -I../PNG -I../PNG/libpng-code -I../include  -g   -std=gnu++11 -o CMakeFiles/main.dir/ConvolutionalLayer.cpp.o -c /home/w/Documents/MatrixStrategy/ConvolutionalLayer.cpp",
+  "file": "/home/w/Documents/MatrixStrategy/ConvolutionalLayer.cpp"
 },
 
 {
